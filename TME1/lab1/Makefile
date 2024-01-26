@@ -6,6 +6,8 @@ CROSS_COMPILE ?=bcm2708hardfp-
 CFLAGS=-Wall -Wfatal-errors -O2
 LDFLAGS=-static  
 
+all: clean dep copy
+
 help:
 	@echo ""
 	@echo "make [RPI=num] target"
@@ -17,7 +19,6 @@ help:
 	@echo " 		copy	compile then copy to card $(RPI) in directory $(NAME)"
 	@echo ""
 
-all: clean dep 
 
 dep : blink0.x
 
