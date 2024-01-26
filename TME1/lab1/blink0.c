@@ -18,9 +18,9 @@
 #define BCM2835_PERIPH_BASE 0x20000000
 #define BCM2835_GPIO_BASE (BCM2835_PERIPH_BASE + 0x200000)
 
-#define GPIO_LED0 4
-#define GPIO_LED1 17
-#define GPIO_BP 18
+#define GPIO_LED0 4  // +5V
+#define GPIO_LED1 17 // +3.3V
+#define GPIO_BP 18   // GPIO 24
 
 #define GPIO_FSEL_INPUT 0
 #define GPIO_FSEL_OUTPUT 1

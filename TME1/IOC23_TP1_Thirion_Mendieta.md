@@ -60,3 +60,36 @@ Après, nous avons crée un simple programme qui affiche "Hello world" dans la s
 1. Qu'est-ce que c'est un compilateur croisé ?
 
 ...
+
+## 5. Contrôle de GPIO en sortie
+
+Nous avons compilé le fichier blink0.c, et l'executé dans la RPI avec des différents arguments de la periode de clignotement afin de voir si effectivement la LED clignotait plus ou moins rapidement.
+
+### Questions sur le code de blink0.c
+
+1. Expliquez pourquoi, il pourrait être dangereux de se tromper de broche pour la configuration des GPIO.
+
+Parce que si on se trompe de broche on risque d'endommager la carte. Par exemple, un port GPIO peut être connecté à une composant électronique qui peut demander plus de courant que la carte peut fournir, dans ce cas il y existe un risque d'endommagement pour la Raspberry.
+
+Un port peut être configué en tant que sortie mais si on branche des composants comme une configuration en entrée
+
+2. A quoi correspond l'adresse `BCM2835_GPIO_BASE` ?
+
+`BCM2835_GPIO_BASE` est l'adresse `BCM2835_PERIPH_BASE` (`0x2000 0000`), correspondant aux péripheriques (I/O Peripherals) dans l'adresse physique du noyau. L'adresse du bus des péripheriques est `0x7E00 0000`.
+
+Apès, on ajoute un offset (`0x0020 0000`). On utilise donc l'adresse du bus `0x7E20 0000` (adresse physique `0x2020 0000`), correspondant à la sélection des fonctions pour les ports GPIO.
+
+3. Que représente la structure `struct gpio_s` ?
+
+Cette structure décrit la carte des registres pour accèder plus proprement aux registres de configuration des GPIOs.
+
+4. Dans quel espace d'adressage est l'adresse `gpio_regs_virt` ?
+
+L'espace d'adressage correspond aux péripheriques de E/S `0x2020 0000`
+
+5. Dans la fonction `gpio_fsel()`, que contient la variable reg ?
+6. Dans la fonction `gpio_write()`, pourquoi écrire à deux adresses différentes en fonction de la valeur val ?
+7. Dans la fonction `gpio_mmap()`, à quoi correspondent les flags de `open()` ?
+8. Dans la fonction `gpio_mmap()`, commentez les arguments de `mmap()`.
+9. Que fait la fonction `delay()` ?
+10. Pourquoi doit-on utiliser `sudo` ?
