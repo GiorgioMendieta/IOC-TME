@@ -43,7 +43,7 @@ struct gpio_s
     uint32_t test[1];
 };
 
-struct gpio_s *gpio_regs_virt;
+volatile struct gpio_s *gpio_regs_virt;
 
 static void
 gpio_fsel(uint32_t pin, uint32_t fun)

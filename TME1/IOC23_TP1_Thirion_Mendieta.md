@@ -85,7 +85,7 @@ Cette structure décrit la carte des registres pour accèder plus proprement aux
 
 4. Dans quel espace d'adressage est l'adresse `gpio_regs_virt` ?
 
-L'espace d'adressage correspond aux péripheriques de E/S `0x2020 0000`
+L'espace d'adressage de gpio_regs_virt correspond à l'adresse des péripheriques d'entrée/sortie `0x2020 0000`
 
 5. Dans la fonction `gpio_fsel()`, que contient la variable reg ?
 6. Dans la fonction `gpio_write()`, pourquoi écrire à deux adresses différentes en fonction de la valeur val ?
