@@ -1,7 +1,7 @@
-NAME = thirion_mendieta # nom1_nom2
-RPI ?= 20 # card_number
+NAME =thirion_mendieta# nom1_nom2
+RPI ?=25# card_number
 
-CROSS_COMPILE ?= bcm2708hardfp-
+CROSS_COMPILE ?=bcm2708hardfp-
 
 CFLAGS=-Wall -Wfatal-errors -O2
 LDFLAGS=-static  

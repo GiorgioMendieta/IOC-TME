@@ -15,14 +15,14 @@
 // GPIO ACCES
 //------------------------------------------------------------------------------
 
-#define BCM2835_PERIPH_BASE     0x20000000
-#define BCM2835_GPIO_BASE       ( BCM2835_PERIPH_BASE + 0x200000 )
+#define BCM2835_PERIPH_BASE 0x20000000
+#define BCM2835_GPIO_BASE (BCM2835_PERIPH_BASE + 0x200000)
 
-#define GPIO_LED0   4
-#define GPIO_LED1   17
-#define GPIO_BP     18
+#define GPIO_LED0 4
+#define GPIO_LED1 17
+#define GPIO_BP 18
 
-#define GPIO_FSEL_INPUT  0
+#define GPIO_FSEL_INPUT 0
 #define GPIO_FSEL_OUTPUT 1
 
 struct gpio_s
@@ -43,10 +43,9 @@ struct gpio_s
     uint32_t test[1];
 };
 
-struct gpio_s *gpio_regs_virt; 
+struct gpio_s *gpio_regs_virt;
 
-
-static void 
+static void
 gpio_fsel(uint32_t pin, uint32_t fun)
 {
     uint32_t reg = pin / 10;
@@ -55,12 +54,12 @@ gpio_fsel(uint32_t pin, uint32_t fun)
     gpio_regs_virt->gpfsel[reg] = (gpio_regs_virt->gpfsel[reg] & ~mask) | ((fun << bit) & mask);
 }
 
-static void 
-gpio_write (uint32_t pin, uint32_t val)
+static void
+gpio_write(uint32_t pin, uint32_t val)
 {
     uint32_t reg = pin / 32;
     uint32_t bit = pin % 32;
-    if (val == 1) 
+    if (val == 1)
         gpio_regs_virt->gpset[reg] = (1 << bit);
     else
         gpio_regs_virt->gpclr[reg] = (1 << bit);
@@ -70,32 +69,29 @@ gpio_write (uint32_t pin, uint32_t val)
 // Access to memory-mapped I/O
 //------------------------------------------------------------------------------
 
-#define RPI_PAGE_SIZE           4096
-#define RPI_BLOCK_SIZE          4096
+#define RPI_PAGE_SIZE 4096
+#define RPI_BLOCK_SIZE 4096
 
 static int mmap_fd;
 
 static int
-gpio_mmap ( void ** ptr )
+gpio_mmap(void **ptr)
 {
-    void * mmap_result;
+    void *mmap_result;
 
-    mmap_fd = open ( "/dev/mem", O_RDWR | O_SYNC );
+    mmap_fd = open("/dev/mem", O_RDWR | O_SYNC);
 
-    if ( mmap_fd < 0 ) {
+    if (mmap_fd < 0)
+    {
         return -1;
     }
 
-    mmap_result = mmap (
-        NULL
-      , RPI_BLOCK_SIZE
-      , PROT_READ | PROT_WRITE
-      , MAP_SHARED
-      , mmap_fd
-      , BCM2835_GPIO_BASE );
+    mmap_result = mmap(
+        NULL, RPI_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd, BCM2835_GPIO_BASE);
 
-    if ( mmap_result == MAP_FAILED ) {
-        close ( mmap_fd );
+    if (mmap_result == MAP_FAILED)
+    {
+        close(mmap_fd);
         return -1;
     }
 
@@ -104,27 +100,24 @@ gpio_mmap ( void ** ptr )
     return 0;
 }
 
-void
-gpio_munmap ( void * ptr )
+void gpio_munmap(void *ptr)
 {
-    munmap ( ptr, RPI_BLOCK_SIZE );
+    munmap(ptr, RPI_BLOCK_SIZE);
 }
 
 //------------------------------------------------------------------------------
 // Main Programm
 //------------------------------------------------------------------------------
 
-void
-delay ( unsigned int milisec )
+void delay(unsigned int milisec)
 {
     struct timespec ts, dummy;
-    ts.tv_sec  = ( time_t ) milisec / 1000;
-    ts.tv_nsec = ( long ) ( milisec % 1000 ) * 1000000;
-    nanosleep ( &ts, &dummy );
+    ts.tv_sec = (time_t)milisec / 1000;
+    ts.tv_nsec = (long)(milisec % 1000) * 1000000;
+    nanosleep(&ts, &dummy);
 }
 
-int
-main ( int argc, char **argv )
+int main(int argc, char **argv)
 {
     // Get args
     // ---------------------------------------------
@@ -132,23 +125,25 @@ main ( int argc, char **argv )
     int period, half_period;
 
     period = 1000; /* default = 1Hz */
-    if ( argc > 1 ) {
-        period = atoi ( argv[1] );
+    if (argc > 1)
+    {
+        period = atoi(argv[1]);
     }
     half_period = period / 2;
-    uint32_t volatile * gpio_base = 0;
+    uint32_t volatile *gpio_base = 0;
 
     // map GPIO registers
     // ---------------------------------------------
 
-    if ( gpio_mmap ( (void **)&gpio_regs_virt ) < 0 ) {
-        printf ( "-- error: cannot setup mapped GPIO.\n" );
-        exit ( 1 );
+    if (gpio_mmap((void **)&gpio_regs_virt) < 0)
+    {
+        printf("-- error: cannot setup mapped GPIO.\n");
+        exit(1);
     }
 
     // Setup GPIO of LED0 to output
     // ---------------------------------------------
-    
+
     gpio_fsel(GPIO_LED0, GPIO_FSEL_OUTPUT);
 
     // Blink led at frequency of 1Hz
@@ -156,11 +151,12 @@ main ( int argc, char **argv )
 
     uint32_t val = 0;
 
-    printf ( "-- info: start blinking.\n" );
+    printf("-- info: start blinking.\n");
 
-    while (1) {
-        gpio_write ( GPIO_LED0, val );
-        delay ( half_period );
+    while (1)
+    {
+        gpio_write(GPIO_LED0, val);
+        delay(half_period);
         val = 1 - val;
     }
 
