@@ -87,9 +87,26 @@ Cette structure décrit la carte des registres pour accèder plus proprement aux
 
 L'espace d'adressage correspond aux péripheriques de E/S `0x2020 0000`
 
-5. Dans la fonction `gpio_fsel()`, que contient la variable reg ?
-6. Dans la fonction `gpio_write()`, pourquoi écrire à deux adresses différentes en fonction de la valeur val ?
+5. Dans la fonction `gpio_fsel()`, que contient la variable `reg` ?
+
+...
+
+6. Dans la fonction `gpio_write()`, pourquoi écrire à deux adresses différentes en fonction de la valeur `val` ?
+
+...
+
 7. Dans la fonction `gpio_mmap()`, à quoi correspondent les flags de `open()` ?
+
+...
+
 8. Dans la fonction `gpio_mmap()`, commentez les arguments de `mmap()`.
+
+...
+
 9. Que fait la fonction `delay()` ?
+
+Cette fonction fait appel au `nanosleep()` (cf. <https://man7.org/linux/man-pages/man2/nanosleep.2.html>) afin d'attendre la durée specifié en milisecondes.
+
 10. Pourquoi doit-on utiliser `sudo` ?
+
+...
