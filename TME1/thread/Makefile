@@ -3,8 +3,8 @@ RPI ?=25# card_number
 
 CROSS_COMPILE ?=bcm2708hardfp-
 
-CFLAGS=-Wall -Wfatal-errors -O2
-LDFLAGS=-static  
+CFLAGS=-Wall -Wfatal-errors -O2 
+LDFLAGS=-static -lpthread
 
 all: clean dep copy
 
@@ -20,13 +20,13 @@ help:
 	@echo ""
 
 
-dep : blink0.x
+dep : blink0_pt.x
 
 copy: *.x
 	scp -P 622$(RPI) $^ pi@peri:$(NAME)
 
 %.x: %.c
-	$(CROSS_COMPILE)gcc -o $@ $^ $(LDFLAGS)
+	$(CROSS_COMPILE)gcc -D_REENTRANT -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f *.o *.x *~ *.a
