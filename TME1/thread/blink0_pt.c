@@ -11,6 +11,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include <pthread.h> // Threads POSIX
+
 //------------------------------------------------------------------------------
 // GPIO ACCES
 //------------------------------------------------------------------------------
@@ -117,6 +119,17 @@ void delay(unsigned int milisec)
     nanosleep(&ts, &dummy);
 }
 
+void clignotement_led1(int half_period)
+{
+    uint32_t val = 0;
+    while (1)
+    {
+        gpio_write(GPIO_LED1, val);
+        delay(half_period);
+        val = 1 - val;
+    }
+}
+
 int main(int argc, char **argv)
 {
     // Get args
@@ -152,6 +165,10 @@ int main(int argc, char **argv)
     uint32_t val = 0;
 
     printf("-- info: start blinking.\n");
+    
+    pthread_t thread;
+    pthread_create (&thread, NULL, clignotement_led1, &half_period);
+    pthread_join(thread, NULL);
 
     while (1)
     {
