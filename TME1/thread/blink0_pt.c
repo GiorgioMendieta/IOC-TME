@@ -45,6 +45,12 @@ struct gpio_s
     uint32_t test[1];
 };
 
+struct blink_params
+{
+    int led;
+    int period;
+};
+
 volatile struct gpio_s *gpio_regs_virt;
 
 static void
@@ -119,12 +125,15 @@ void delay(unsigned int milisec)
     nanosleep(&ts, &dummy);
 }
 
-void clignotement_led1(int half_period)
+void blink(int led, int half_period)
 {
+    // Setup GPIO to output
+    gpio_fsel(led, GPIO_FSEL_OUTPUT);
+
     uint32_t val = 0;
     while (1)
     {
-        gpio_write(GPIO_LED1, val);
+        gpio_write(led, val);
         delay(half_period);
         val = 1 - val;
     }
@@ -165,10 +174,20 @@ int main(int argc, char **argv)
     uint32_t val = 0;
 
     printf("-- info: start blinking.\n");
-    
+
+    // Create thread to blink another led
+
+    // Parametres pour le thread
+    struct blink_params blink1_args;
+    blink1_args.led = GPIO_LED1;
+    blink1_args.period = half_period;
+
     pthread_t thread;
-    pthread_create (&thread, NULL, clignotement_led1, &half_period);
-    pthread_join(thread, NULL);
+    int ret = pthread_create(&thread, NULL, blink, &blink1_args);
+    if (!ret)
+    {
+        pthread_join(thread, NULL);
+    }
 
     while (1)
     {
@@ -177,5 +196,6 @@ int main(int argc, char **argv)
         val = 1 - val;
     }
 
+    pthread_join(thread, NULL);
     return 0;
 }

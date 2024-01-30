@@ -23,6 +23,7 @@ help:
 dep : blink0_pt.x
 
 copy: *.x
+	@echo "Copying blink0.x to ~/$(NAME)"
 	scp -P 622$(RPI) $^ pi@peri:$(NAME)
 
 %.x: %.c
