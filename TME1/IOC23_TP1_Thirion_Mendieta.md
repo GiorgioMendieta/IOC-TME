@@ -110,3 +110,13 @@ Cette fonction fait appel au `nanosleep()` (cf. <https://man7.org/linux/man-page
 10. Pourquoi doit-on utiliser `sudo` ?
 
 ...
+
+## 6. Contrôle de plusieurs GPIO en mode "sortie"
+
+Nous avons utilisé le [site suivante](https://hpc-tutorials.llnl.gov/posix/passing_args/) (Cf. Partie 2) afin de comprendre mieux comment passer en argument des plusieurs parametres à un thread.
+
+## 7. Lecture de la valeur d'une entrée GPIO
+
+En nous basant sur le code, nous avons crée une fonction pour lire la valeur d'un GPIO. On lit sur le GPIO Pin Level Registers (GPLEVn), et on fait une masque afin d'obtenir la valeur du GPIO souhaité.
+
+`value = gpio_regs_virt->gplev[reg] & (1 << bit);`
