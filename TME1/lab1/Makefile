@@ -1,4 +1,4 @@
-NAME =thirion_mendieta# nom1_nom2
+DIR =thirion_mendieta# nom1_nom2
 RPI ?=25# card_number
 
 CROSS_COMPILE ?=bcm2708hardfp-
@@ -16,15 +16,15 @@ help:
 	@echo " 		all	clean all and recompile"
 	@echo " 		dep	compile if required"
 	@echo " 		clean	clean all except sources"
-	@echo " 		copy	compile then copy to card $(RPI) in directory $(NAME)"
+	@echo " 		copy	compile then copy to card $(RPI) in directory $(DIR)"
 	@echo ""
 
 
-dep : blink0.x
+dep : blink0.x blink0_pt.x read_bp.x
 
 copy: *.x
-	@echo "Copying blink0.x to ~/$(NAME)"
-	scp -P 622$(RPI) $^ pi@peri:$(NAME)
+	@echo "Copying compiled files to ~/$(DIR)"
+	scp -P 622$(RPI) $^ pi@peri:$(DIR)
 
 %.x: %.c
 	$(CROSS_COMPILE)gcc -o $@ $^ $(LDFLAGS)
