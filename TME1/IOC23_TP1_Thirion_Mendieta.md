@@ -5,42 +5,21 @@
 - THIRION Lou
 - MENDIETA OROZCO Jorge Alberto
 
-## Réponses aux questions du TME (s'il y en a)
-
-- Ecrire un résumé de la question 1 (en moins d'une phrase)
-- réponse 1…
-- résumé de la question2
-- réponse 2
-- peut-être sur plusieurs lignes
-
-## Expériences réalisées
-
-### Titre de l'expérience
-
-- Décrire sous forme d'une liste les étapes
-- éventuellement les sous-étapes 1
-- une sous étape 2
-- etc
-- Une nouvelle étape de l'expériences
-- etc.
-
-# CR
+## 2. Hello World! RaspberryPi
 
 Nous avons eu de problèmes en essayant de nous connecter en utilisant `ssh` avec une machine depuis l'extérieur. Nous avons donc changé à une machine de la salle SESI afin de nous connecter sur la carte Raspberry Pi N° 25
 
-Nous avons ensuite crée le répertoire `thirion_mendieta` dans la racine du Raspberry (`~`)
-
-## 2. Hello World! RaspberryPi
+Nous avons ensuite crée le répertoire `~/thirion_mendieta/` dans la racine du Raspberry Pi.
 
 ### Questions
 
 1. Pourquoi passer par la redirection des ports ?
 
-Parce que la configuration du réseau a été configuré pour router les paquets entrants sur le port `62225` de l'adresse `132.227.71.43` (configuré par le DNS comme `peri`) depuis le côté du laboratoire, vers la carte RaspberryPi trouvé dans un sous-réseau (adresse`192.168.1.25`) qui a un port interne `25`, celui le serveur ssh écoute les paquets entrants.
+    Parce que la configuration du réseau a été configuré pour router les paquets entrants sur le port `62225` de l'adresse `132.227.71.43` (configuré par le DNS comme `peri`) depuis le côté du laboratoire, vers la carte RaspberryPi trouvé dans un sous-réseau (adresse`192.168.1.25`) qui a un port interne `25`, celui le serveur ssh écoute les paquets entrants.
 
 2. Pourquoi faut-il que vos fichiers soit dans un répertoire propre sur une RaspberryPi ?
 
-Afin de mantenir une structure propre car plusieurs personnes travailleront sur une même carte.
+    Afin de mantenir une structure propre car plusieurs personnes travailleront sur une même carte.
 
 ## 3. Configuration des clés ssh
 
@@ -51,17 +30,15 @@ On a crée un pair de clés publique/private afin de nous connecter à la carte 
 
 ## 4. Prise en mains des outils de développement: Hello World
 
-Nous avons ajouté sur le PATH le chemin `source /users/enseig/franck/E-IOC/export_rpi_toolchain.sh` afin de pouvoir utiliser le compilateur croisé.
+Nous avons ajouté sur le PATH trouvé dans le fichier `.bashrc` le chemin `source /users/enseig/franck/E-IOC/export_rpi_toolchain.sh` afin de pouvoir utiliser le compilateur croisé.
 
-Après, nous avons crée un simple programme qui affiche "Hello world" dans la sortie standard. Grâce au fichier makefile, nous avons utilisé le compilateur croisé pour le SoC BCM2708, et en utilisant la commande `scp` (secure copy) nous avons deplacé le binaire dans notre répertoira dans la RPI.
+Après, nous avons crée un simple programme qui affiche "Hello world" dans la sortie standard. Grâce au fichier makefile, nous avons utilisé le compilateur croisé pour le **SoC BCM2708**, et en utilisant la commande `scp` (secure copy) nous avons deplacé le binaire dans notre répertoira dans la RPI.
 
 ### Questions
 
 1. Qu'est-ce que c'est un compilateur croisé ?
 
-Un compilateur croisé est un type de compilateur où la compilation est faite dans une machine différente à la machine cible qui va éxecuter le programme. 
-
-Autrement dit, un compilateur croisé est un outil de développement logiciel qui permet de compiler du code source sur une plateforme ou architecture différente de celle sur laquelle il sera exécuté.
+    Un compilateur croisé est un outil de développement logiciel qui permet de compiler du code source sur une plateforme ou architecture différente de celle sur laquelle il sera exécuté.
 
 ## 5. Contrôle de GPIO en sortie
 
@@ -71,47 +48,50 @@ Nous avons compilé le fichier blink0.c, et l'executé dans la RPI avec des diff
 
 1. Expliquez pourquoi, il pourrait être dangereux de se tromper de broche pour la configuration des GPIO.
 
-Parce que si on se trompe de broche on risque d'endommager la carte. Par exemple, un port GPIO peut être connecté à une composant électronique qui peut demander plus de courant que la carte peut fournir, dans ce cas il y existe un risque d'endommagement pour la Raspberry.
+    Parce que si on se trompe de broche on risque d'endommager la carte. Par exemple, un port GPIO peut être connecté à une composant électronique qui peut demander plus de courant que la carte peut fournir, dans ce cas il y existe un risque d'endommagement pour la Raspberry.
 
-Un port peut être configué en tant que sortie mais si on branche des composants comme une configuration en entrée
-
+    Un port peut être configué en tant que sortie mais si on branche des composants comme une configuration en entrée
 2. A quoi correspond l'adresse `BCM2835_GPIO_BASE` ?
 
-`BCM2835_GPIO_BASE` est l'adresse `BCM2835_PERIPH_BASE` (`0x2000 0000`), correspondant aux péripheriques (I/O Peripherals) dans l'adresse physique du noyau. L'adresse du bus des péripheriques est `0x7E00 0000`.
+    `BCM2835_GPIO_BASE` est l'adresse `BCM2835_PERIPH_BASE` (`0x2000 0000`), correspondant aux péripheriques (I/O Peripherals) dans l'adresse physique du noyau. L'adresse du bus des péripheriques est `0x7E00 0000`.
 
-Apès, on ajoute un offset (`0x0020 0000`). On utilise donc l'adresse du bus `0x7E20 0000` (adresse physique `0x2020 0000`), correspondant à la sélection des fonctions pour les ports GPIO.
+    Apès, on ajoute un offset (`0x0020 0000`). On utilise donc l'adresse du bus `0x7E20 0000` (adresse physique `0x2020 0000`), correspondant à la sélection des fonctions pour les ports GPIO.
 
 3. Que représente la structure `struct gpio_s` ?
 
-Cette structure décrit la carte des registres pour accèder plus proprement aux registres de configuration des GPIOs.
+    Cette structure décrit la carte des registres pour accèder plus proprement aux registres de configuration des GPIOs.
 
 4. Dans quel espace d'adressage est l'adresse `gpio_regs_virt` ?
 
-L'espace d'adressage de gpio_regs_virt correspond à l'adresse des péripheriques d'entrée/sortie `0x2020 0000`
+    L'espace d'adressage de gpio_regs_virt correspond à l'adresse des péripheriques d'entrée/sortie `0x2020 0000`
 
 5. Dans la fonction `gpio_fsel()`, que contient la variable `reg` ?
 
-...
+    Les GPIO Function Select Registers (GPFSELn) contiennent chaqu'un les fonctions de dix GPIOs. Donc une façon facile d'obtenir le registre GPFSELn correspondant au pin est de diviser par 10 et prendre la partie entière.
 
 6. Dans la fonction `gpio_write()`, pourquoi écrire à deux adresses différentes en fonction de la valeur `val` ?
 
-...
+    La Raspberry Pi a deux registres qui servent à mettre un GPIO à 1 (Set) ou à 0 (Clear):
+
+    - GPIO Pin Output Set Registers (GPSETn)
+    - GPIO Pin Output Clear Registers (GPCLRn)
 
 7. Dans la fonction `gpio_mmap()`, à quoi correspondent les flags de `open()` ?
 
-...
+   - O_RDWR : Ouvre le répertoire en lecture et écriture
+   - O_SYNC : Synchronize I/O file integrity
 
 8. Dans la fonction `gpio_mmap()`, commentez les arguments de `mmap()`.
 
-...
+    ...
 
 9. Que fait la fonction `delay()` ?
 
-Cette fonction fait appel au `nanosleep()` (cf. <https://man7.org/linux/man-pages/man2/nanosleep.2.html>) afin d'attendre la durée specifié en milisecondes.
+    Cette fonction fait appel au `nanosleep()` (cf. <https://man7.org/linux/man-pages/man2/nanosleep.2.html>) afin d'attendre la durée specifié en milisecondes.
 
 10. Pourquoi doit-on utiliser `sudo` ?
 
-...
+    Parce que les droits d'accès des utilisateurs normales ne sont suffisantes pour éxecuter les programmes crées. Par exemple, le memory map tape sur une zone mémoire restreint aux utilisateurs qui n'ont pas des droits élevés car cela peut être dangereuse pour le système.
 
 ## 6. Contrôle de plusieurs GPIO en mode "sortie"
 
@@ -119,15 +99,17 @@ Nous avons utilisé le [site suivante](https://hpc-tutorials.llnl.gov/posix/pass
 
 D'abord, nous avons crée un thread en lui envoyant une structure en tant qu'argument avec deux parametres (pin et période). Ensuite nous avons configuré le pin en tant que sortie pour le LED 1 (GPIO 17) et nous avons éxecuté la fonction de clignotement.
 
-Pour les deux threads, le principe restait le même sauf que désormais on utilisait un thread par LED.
+Pour les deux threads, le principe restait le même sauf que désormais on utilisait un thread par LED, en les envoyant deux structures avec des paramètres differentes pour varier la fréquence de clignotement de chaque GPIO.
 
 ## 7. Lecture de la valeur d'une entrée GPIO
 
 En nous basant sur le code, nous avons crée une fonction pour lire la valeur d'un GPIO. On lit sur le GPIO Pin Level Registers (GPLEVn), et on fait une masque afin d'obtenir la valeur du GPIO souhaité.
 
-`value = gpio_regs_virt->gplev[reg] & (1 << bit);`
+```c
+value = gpio_regs_virt->gplev[reg] & (1 << bit);
+```
 
-Au début on avait éxecutait les instructions suivantes dans le thread main(). Néanmoins, cela a fait que la LED s'allumait seulement quand le bouton restait pressé. Si on relachaît le bouton, la LED se éteint.
+Au début on avait éxecutait les instructions suivantes dans le thread principal (`main()`). Néanmoins, cela a fait que la LED s'allumait seulement quand le bouton restait pressé. Si on relachaît le bouton, la LED se éteint.
 
 ```c
 while(1)
@@ -144,6 +126,7 @@ while(1)
 ```
 
 Puis on l'a corrigé pour que la LED change de valeur a chaque "front montant" du bouton et pas à chaque changement d'état.
+
 ```c
 uint32_t led_on = 0;
 while(1)
@@ -158,6 +141,7 @@ while(1)
     }
 }
 ```
+
 ## Lab1+
 
 - `blink02_pt.c` clignote deux LEDs à deux fréquences différentes définis par l'utilisateur en tant qu'arguments
