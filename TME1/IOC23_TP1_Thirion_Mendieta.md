@@ -59,7 +59,9 @@ Après, nous avons crée un simple programme qui affiche "Hello world" dans la s
 
 1. Qu'est-ce que c'est un compilateur croisé ?
 
-...
+Un compilateur croisé est un type de compilateur où la compilation est faite dans une machine différente à la machine cible qui va éxecuter le programme. 
+
+Autrement dit, un compilateur croisé est un outil de développement logiciel qui permet de compiler du code source sur une plateforme ou architecture différente de celle sur laquelle il sera exécuté.
 
 ## 5. Contrôle de GPIO en sortie
 
@@ -115,12 +117,47 @@ Cette fonction fait appel au `nanosleep()` (cf. <https://man7.org/linux/man-page
 
 Nous avons utilisé le [site suivante](https://hpc-tutorials.llnl.gov/posix/passing_args/) (Cf. Partie 2) afin de comprendre mieux comment passer en argument des plusieurs parametres à un thread.
 
+D'abord, nous avons crée un thread en lui envoyant une structure en tant qu'argument avec deux parametres (pin et période). Ensuite nous avons configuré le pin en tant que sortie pour le LED 1 (GPIO 17) et nous avons éxecuté la fonction de clignotement.
+
+Pour les deux threads, le principe restait le même sauf que désormais on utilisait un thread par LED.
+
 ## 7. Lecture de la valeur d'une entrée GPIO
 
 En nous basant sur le code, nous avons crée une fonction pour lire la valeur d'un GPIO. On lit sur le GPIO Pin Level Registers (GPLEVn), et on fait une masque afin d'obtenir la valeur du GPIO souhaité.
 
 `value = gpio_regs_virt->gplev[reg] & (1 << bit);`
 
+Au début on avait éxecutait les instructions suivantes dans le thread main(). Néanmoins, cela a fait que la LED s'allumait seulement quand le bouton restait pressé. Si on relachaît le bouton, la LED se éteint.
+
+```c
+while(1)
+{
+    if(BP_ON){
+        BP_ON = 0;
+        gpio_write(GPIO_LED0, 1);
+    }
+    if(BP_OFF){
+        BP_OFF = 0;
+        gpio_write(GPIO_LED0, 1);
+    }
+}
+```
+
+Puis on l'a corrigé pour que la LED change de valeur a chaque "front montant" du bouton et pas à chaque changement d'état.
+```c
+uint32_t led_on = 0;
+while(1)
+{
+    if(BP_ON){
+        BP_ON = 0;
+        gpio_write(GPIO_LED0, led_on);
+        led_on = 1 - led_on;
+    }
+    if(BP_OFF){
+        BP_OFF = 0;
+    }
+}
+```
 ## Lab1+
 
 - `blink02_pt.c` clignote deux LEDs à deux fréquences différentes définis par l'utilisateur en tant qu'arguments

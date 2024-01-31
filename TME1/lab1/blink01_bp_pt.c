@@ -47,11 +47,11 @@ struct gpio_s
 };
 
 // Structures to send parameters to threads
-// struct blink_params
-// {
-//     int led;
-//     int half_period;
-// };
+struct blink_params
+{
+    int led;
+    int half_period;
+};
 
 struct button_params
 {
@@ -156,26 +156,26 @@ void delay(unsigned int milisec)
     nanosleep(&ts, &dummy);
 }
 
-// void *blink(void *threadarg)
-// {
-//     // Each thread receives a unique instance of the structure
-//     struct blink_params *args;
-//     args = (struct blink_params *)threadarg;
-//     int led = args->led;
-//     int half_period = args->half_period;
+void *blink(void *threadarg)
+{
+    // Each thread receives a unique instance of the structure
+    struct blink_params *args;
+    args = (struct blink_params *)threadarg;
+    int led = args->led;
+    int half_period = args->half_period;
 
-//     // Setup GPIO to output
-//     gpio_fsel(led, GPIO_FSEL_OUTPUT);
+    // Setup GPIO to output
+    gpio_fsel(led, GPIO_FSEL_OUTPUT);
 
-//     // Begin alternating the value
-//     uint32_t is_on = 0;
-//     while (1)
-//     {
-//         gpio_write(led, is_on);
-//         delay(half_period);
-//         is_on = 1 - is_on; // is_on = not is_on
-//     }
-// }
+    // Begin alternating the value
+    uint32_t is_on = 0;
+    while (1)
+    {
+        gpio_write(led, is_on);
+        delay(half_period);
+        is_on = 1 - is_on; // is_on = not is_on
+    }
+}
 
 uint32_t BP_ON = 0;   // mis à 1 si le bouton a été appuyé, mis à 0 quand la tâche qui attend l'appui a vu l'appui
 uint32_t BP_OFF = 0;  // mis à 1 si le bouton a été relâché, mis à 0 quand la tâche qui attend le relâchement a vu le relâchement
@@ -234,35 +234,54 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    // Setup GPIO of LED0 to output
+    gpio_fsel(GPIO_LED0, GPIO_FSEL_OUTPUT);
+
     // Create a local structure and set the members' values
     struct button_params button1_args;
     button1_args.pin = GPIO_PUSH_BUTTON;
 
     // Create the thread and pass the structure containing the values as argument
-    pthread_t thread;
-    int ret = pthread_create(&thread, NULL, read_button, (void *)&button1_args);
+    pthread_t thread_button;
+    int ret = pthread_create(&thread_button, NULL, read_button, (void *)&button1_args);
     if (ret != 0)
     {
         // Join the thread in case of error
         printf("-- error: cannot create thread.\n");
-        pthread_join(thread, NULL);
+        pthread_join(thread_button, NULL);
+    }
+
+    struct blink_params blink1_args;
+    blink1_args.led = GPIO_LED1;
+    blink1_args.half_period = half_period;
+
+    // Create the thread and pass the structure containing the values as argument
+    pthread_t thread_led;
+    ret = pthread_create(&thread_led, NULL, blink, (void *)&blink1_args);
+    if (ret != 0)
+    {
+        // Join the thread in case of error
+        printf("-- error: cannot create thread.\n");
+        pthread_join(thread_led, NULL);
     }
 
     // Blink led at default frequency of 1Hz
     printf("-- info: start reading value of button.\n");
-
+    uint32_t led_on = 0;
     while(1)
     {
         if(BP_ON){
             BP_ON = 0;
-            printf("-- info: Button pressed.\n");
+            gpio_write(GPIO_LED0, led_on);
+            led_on = 1 - led_on;
         }
         if(BP_OFF){
             BP_OFF = 0;
         }
     }
     
-    pthread_join(thread, NULL);
+    pthread_join(thread_button, NULL);
+    pthread_join(thread_led, NULL);
 
     return 0;
 }
