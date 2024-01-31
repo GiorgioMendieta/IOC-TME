@@ -161,4 +161,4 @@ while(1)
 ## Lab1+
 
 - `blink02_pt.c` clignote deux LEDs à deux fréquences différentes définis par l'utilisateur en tant qu'arguments
-- `blink03_pt.c` clignote deux LEDs en utilisant le bouton poussoir
+- `blink03_pt.c` clignote deux LEDs avec la même fréquence en utilisant le bouton poussoir pour changer la phase du deuxième LED
