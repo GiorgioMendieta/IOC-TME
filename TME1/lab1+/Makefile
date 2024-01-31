@@ -6,7 +6,7 @@ RPI ?=25
 CROSS_COMPILE ?=bcm2708hardfp-
 
 CFLAGS=-Wall -Wfatal-errors -O2
-LDFLAGS=-static  
+LDFLAGS=-static -lpthread
 
 all: clean dep copy
 
@@ -29,7 +29,7 @@ copy: *.x
 	scp -P 622$(RPI) $^ pi@peri:$(DIR)
 
 %.x: %.c
-	$(CROSS_COMPILE)gcc -o $@ $^ $(LDFLAGS)
+	$(CROSS_COMPILE)gcc -D_REENTRANT -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f *.o *.x *~ *.a
