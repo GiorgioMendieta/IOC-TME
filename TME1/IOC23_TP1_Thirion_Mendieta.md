@@ -120,3 +120,8 @@ Nous avons utilisé le [site suivante](https://hpc-tutorials.llnl.gov/posix/pass
 En nous basant sur le code, nous avons crée une fonction pour lire la valeur d'un GPIO. On lit sur le GPIO Pin Level Registers (GPLEVn), et on fait une masque afin d'obtenir la valeur du GPIO souhaité.
 
 `value = gpio_regs_virt->gplev[reg] & (1 << bit);`
+
+## Lab1+
+
+- `blink02_pt.c` clignote deux LEDs à deux fréquences différentes définis par l'utilisateur en tant qu'arguments
+- `blink03_pt.c` clignote deux LEDs en utilisant le bouton poussoir

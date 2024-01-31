@@ -27,22 +27,22 @@
 #define GPIO_FSEL_INPUT 0
 #define GPIO_FSEL_OUTPUT 1
 
-// There is one extra element in the array for reserved space in the address space for each configuration register
+// Note: There is one extra element in the array for reserved space in the address space for each configuration register
 struct gpio_s
 {
-    uint32_t gpfsel[7];
-    uint32_t gpset[3]; // GPIO Pin Output Set Registers (GPSETn)
-    uint32_t gpclr[3]; // GPIO Pin Output Clear Registers (GPCLRn)
-    uint32_t gplev[3]; // GPIO Pin Level Registers (GPLEVn)
-    uint32_t gpeds[3];
-    uint32_t gpren[3];
-    uint32_t gpfen[3];
-    uint32_t gphen[3];
-    uint32_t gplen[3];
-    uint32_t gparen[3];
-    uint32_t gpafen[3];
-    uint32_t gppud[1];
-    uint32_t gppudclk[3];
+    uint32_t gpfsel[7];   // GPIO Function Select Registers (GPFSELn)
+    uint32_t gpset[3];    // GPIO Pin Output Set Registers (GPSETn)
+    uint32_t gpclr[3];    // GPIO Pin Output Clear Registers (GPCLRn)
+    uint32_t gplev[3];    // GPIO Pin Level Registers (GPLEVn)
+    uint32_t gpeds[3];    // GPIO Event Detect Status Registers (GPEDSn)
+    uint32_t gpren[3];    // GPIO Rising Edge Detect Enable Registers (GPRENn)
+    uint32_t gpfen[3];    // GPIO Falling Edge Detect Enable Registers (GPRENn)
+    uint32_t gphen[3];    // GPIO High Detect Enable Registers (GPHENn)
+    uint32_t gplen[3];    // GPIO Low Detect Enable Registers (GPLENn)
+    uint32_t gparen[3];   // GPIO Asynchronous rising Edge Detect Enable Registers (GPARENn)
+    uint32_t gpafen[3];   // GPIO Asynchronous Falling Edge Detect Enable Registers (GPAFENn)
+    uint32_t gppud[1];    // GPIO Pull-up/down Register (GPPUD)
+    uint32_t gppudclk[3]; // GPIO Pull-up/down Clock Registers (GPPUDCLKn)
     uint32_t test[1];
 };
 
@@ -199,12 +199,14 @@ int main(int argc, char **argv)
     // Blink led at default frequency of 1Hz
     printf("-- info: start reading value of button.\n");
 
-    // Begin alternating the value
     uint32_t button_status = 0;
     while (1)
     {
         button_status = gpio_read(GPIO_PUSH_BUTTON);
-        delay(half_period);
+        if (button_status)
+        {
+            printf("-- Push button pressed.\n");
+        }
     }
 
     return 0;

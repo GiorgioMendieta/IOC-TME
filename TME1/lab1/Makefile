@@ -1,6 +1,8 @@
-DIR =thirion_mendieta# nom1_nom2
-RPI ?=25# card_number
-
+# Directory to save files ~/nom1_nom2
+DIR =thirion_mendieta
+# Raspberry Pi Card Number
+RPI ?=25
+# Cross compiler
 CROSS_COMPILE ?=bcm2708hardfp-
 
 CFLAGS=-Wall -Wfatal-errors -O2
@@ -12,11 +14,11 @@ help:
 	@echo ""
 	@echo "make [RPI=num] target"
 	@echo ""
-	@echo "      target :	help	this message"
-	@echo " 		all	clean all and recompile"
-	@echo " 		dep	compile if required"
-	@echo " 		clean	clean all except sources"
-	@echo " 		copy	compile then copy to card $(RPI) in directory $(DIR)"
+	@echo "     target :	help	this message"
+	@echo "		all	clean all and recompile"
+	@echo "		dep	compile if required"
+	@echo "		clean	clean all except sources"
+	@echo "		copy	compile then copy to card $(RPI) in directory $(DIR)"
 	@echo ""
 
 
