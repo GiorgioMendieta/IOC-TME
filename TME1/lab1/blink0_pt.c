@@ -196,7 +196,7 @@ int main(int argc, char **argv)
     // Create the thread and pass the structure containing the values as argument
     pthread_t thread;
     int ret = pthread_create(&thread, NULL, blink, (void *)&blink1_args);
-    if (!ret)
+    if (ret != 0)
     {
         // Join the thread in case of error
         printf("-- error: cannot create thread.\n");
