@@ -199,11 +199,11 @@ int main(int argc, char **argv)
     // Blink led at default frequency of 1Hz
     printf("-- info: start reading value of button.\n");
 
-    uint32_t button_status = 0;
+    uint32_t is_pressed = 0;
     while (1)
     {
-        button_status = gpio_read(GPIO_PUSH_BUTTON);
-        if (button_status)
+        is_pressed = gpio_read(GPIO_PUSH_BUTTON);
+        if (!is_pressed)
         {
             printf("-- Push button pressed.\n");
         }
