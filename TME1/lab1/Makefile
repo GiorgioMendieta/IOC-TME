@@ -22,7 +22,7 @@ help:
 	@echo ""
 
 
-dep : blink0.x blink0_pt.x blink01_pt.x read_bp.x
+dep : blink0.x blink0_pt.x blink01_pt.x read_bp.x blink01_bp_pt.x
 
 copy: *.x
 	@echo "Copying compiled files to ~/$(DIR)"
