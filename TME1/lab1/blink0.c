@@ -27,19 +27,19 @@
 
 struct gpio_s
 {
-    uint32_t gpfsel[7];
-    uint32_t gpset[3];
-    uint32_t gpclr[3];
-    uint32_t gplev[3];
-    uint32_t gpeds[3];
-    uint32_t gpren[3];
-    uint32_t gpfen[3];
-    uint32_t gphen[3];
-    uint32_t gplen[3];
-    uint32_t gparen[3];
-    uint32_t gpafen[3];
-    uint32_t gppud[1];
-    uint32_t gppudclk[3];
+    uint32_t gpfsel[7];   // GPIO Function Select Registers (GPFSELn)
+    uint32_t gpset[3];    // GPIO Pin Output Set Registers (GPSETn)
+    uint32_t gpclr[3];    // GPIO Pin Output Clear Registers (GPCLRn)
+    uint32_t gplev[3];    // GPIO Pin Level Registers (GPLEVn)
+    uint32_t gpeds[3];    // GPIO Event Detect Status Registers (GPEDSn)
+    uint32_t gpren[3];    // GPIO Rising Edge Detect Enable Registers (GPRENn)
+    uint32_t gpfen[3];    // GPIO Falling Edge Detect Enable Registers (GPRENn)
+    uint32_t gphen[3];    // GPIO High Detect Enable Registers (GPHENn)
+    uint32_t gplen[3];    // GPIO Low Detect Enable Registers (GPLENn)
+    uint32_t gparen[3];   // GPIO Asynchronous rising Edge Detect Enable Registers (GPARENn)
+    uint32_t gpafen[3];   // GPIO Asynchronous Falling Edge Detect Enable Registers (GPAFENn)
+    uint32_t gppud[1];    // GPIO Pull-up/down Register (GPPUD)
+    uint32_t gppudclk[3]; // GPIO Pull-up/down Clock Registers (GPPUDCLKn)
     uint32_t test[1];
 };
 
@@ -149,15 +149,15 @@ int main(int argc, char **argv)
     // Blink led at frequency of 1Hz
     // ---------------------------------------------
 
-    uint32_t val = 0;
-
     printf("-- info: start blinking.\n");
 
+    // Begin alternating the value
+    uint32_t is_on = 0;
     while (1)
     {
-        gpio_write(GPIO_LED0, val);
+        gpio_write(GPIO_LED0, is_on);
         delay(half_period);
-        val = 1 - val;
+        is_on = 1 - is_on; // is_on = not is_on
     }
 
     return 0;

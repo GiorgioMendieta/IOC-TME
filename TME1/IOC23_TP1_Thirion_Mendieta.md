@@ -34,7 +34,18 @@ On a crée un pair de clés publique/private afin de nous connecter à la carte 
 
 Nous avons ajouté sur le PATH trouvé dans le fichier `.bashrc` le chemin `source /users/enseig/franck/E-IOC/export_rpi_toolchain.sh` afin de pouvoir utiliser le compilateur croisé.
 
-Après, nous avons crée un simple programme qui affiche "Hello world" dans la sortie standard. Grâce au fichier makefile, nous avons utilisé le compilateur croisé pour le **SoC BCM2708**, et en utilisant la commande `scp` (secure copy) nous avons deplacé le binaire dans notre répertoire dans la RPI.
+Après, nous avons crée un simple programme qui affiche "Hello, World!" dans la sortie standard.
+
+```c
+#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\n");
+    return 0;
+}
+```
+
+ Grâce au fichier makefile, nous avons utilisé le compilateur croisé pour le **SoC BCM2708**, et en utilisant la commande `scp` (secure copy) nous avons deplacé le binaire dans notre répertoire dans la RPI.
 
 Finalement, pour exécuter le programme nous avons exécuté la commande suivante dans le terminal :
 `sudo ./helloworld.x`
@@ -47,7 +58,24 @@ Finalement, pour exécuter le programme nous avons exécuté la commande suivant
 
 ## 5. Contrôle de GPIO en sortie (blink0.c)
 
-Nous avons compilé le fichier blink0.c, et l'executé dans la RPI avec des différents arguments de la periode de clignotement afin de voir si effectivement la LED clignotait plus ou moins rapidement.
+Nous avons compilé le fichier `blink0.c`, et l'executé dans la RPI avec des différents arguments de la periode de clignotement afin de voir si effectivement la LED clignotait plus ou moins rapidement.
+
+- `sudo ./blink0.x` : Clignote la LED à la fréquence par défaut (1 Hz)
+- `sudo ./blink0.x 500` : Clignote la LED à une période de 500ms (2 Hz)
+- `sudo ./blink0.x 200` : Clignote la LED à une période de 200ms (5 Hz)
+
+La partie principale du code qui fait que la LED clignote est la suivante :
+
+```c
+// Begin alternating the value
+uint32_t is_on = 0;
+while (1)
+{
+    gpio_write(GPIO_LED0, is_on);
+    delay(half_period);
+    is_on = 1 - is_on; // is_on = not is_on
+}
+```
 
 ### Questions sur le code
 
@@ -56,6 +84,7 @@ Nous avons compilé le fichier blink0.c, et l'executé dans la RPI avec des diff
     Parce que si on se trompe de broche on risque d'endommager la carte. Par exemple, un port GPIO peut être connecté à une composant électronique qui peut demander plus de courant que la carte peut fournir, dans ce cas il y existe un risque d'endommagement pour la Raspberry.
 
     Un port peut être configué en tant que sortie mais si on branche des composants comme une configuration en entrée
+
 2. A quoi correspond l'adresse `BCM2835_GPIO_BASE` ?
 
     `BCM2835_GPIO_BASE` est l'adresse `BCM2835_PERIPH_BASE` (`0x2000 0000`), correspondant aux péripheriques (I/O Peripherals) dans l'adresse physique du noyau. L'adresse du bus des péripheriques est `0x7E00 0000`.
@@ -64,7 +93,27 @@ Nous avons compilé le fichier blink0.c, et l'executé dans la RPI avec des diff
 
 3. Que représente la structure `struct gpio_s` ?
 
-    Cette structure décrit la carte des registres pour accèder plus proprement aux registres de configuration des GPIOs.
+    Cette structure décrit la carte des registres pour accèder plus proprement aux registres de configuration des GPIOs. Elle est basé sur le document **BCM2835 ARM Peripherals** (cf. 6.1 Register View)
+
+    ```c
+    struct gpio_s
+    {
+        uint32_t gpfsel[7];   // GPIO Function Select Registers (GPFSELn)
+        uint32_t gpset[3];    // GPIO Pin Output Set Registers (GPSETn)
+        uint32_t gpclr[3];    // GPIO Pin Output Clear Registers (GPCLRn)
+        uint32_t gplev[3];    // GPIO Pin Level Registers (GPLEVn)
+        uint32_t gpeds[3];    // GPIO Event Detect Status Registers (GPEDSn)
+        uint32_t gpren[3];    // GPIO Rising Edge Detect Enable Registers (GPRENn)
+        uint32_t gpfen[3];    // GPIO Falling Edge Detect Enable Registers (GPRENn)
+        uint32_t gphen[3];    // GPIO High Detect Enable Registers (GPHENn)
+        uint32_t gplen[3];    // GPIO Low Detect Enable Registers (GPLENn)
+        uint32_t gparen[3];   // GPIO Asynchronous rising Edge Detect Enable Registers (GPARENn)
+        uint32_t gpafen[3];   // GPIO Asynchronous Falling Edge Detect Enable Registers (GPAFENn)
+        uint32_t gppud[1];    // GPIO Pull-up/down Register (GPPUD)
+        uint32_t gppudclk[3]; // GPIO Pull-up/down Clock Registers (GPPUDCLKn)
+        uint32_t test[1];
+    };
+    ```
 
 4. Dans quel espace d'adressage est l'adresse `gpio_regs_virt` ?
 
@@ -106,6 +155,16 @@ Nous avons compilé le fichier blink0.c, et l'executé dans la RPI avec des diff
 9. Que fait la fonction `delay()` ?
 
     Cette fonction fait appel au `nanosleep()` (cf. <https://man7.org/linux/man-pages/man2/nanosleep.2.html>) afin d'attendre la durée specifié en milisecondes.
+
+    ```c
+    void delay(unsigned int milisec)
+    {
+        struct timespec ts, dummy;
+        ts.tv_sec = (time_t)milisec / 1000;
+        ts.tv_nsec = (long)(milisec % 1000) * 1000000;
+        nanosleep(&ts, &dummy);
+    }
+    ```
 
 10. Pourquoi doit-on utiliser `sudo` ?
 
@@ -184,6 +243,22 @@ En nous basant sur le code, nous avons crée une fonction pour lire la valeur d'
 
 ```c
 value = gpio_regs_virt->gplev[reg] & (1 << bit);
+```
+
+Dans la fonction main, on a le bloc de code suivant :
+
+```c
+printf("-- info: start reading value of button.\n");
+
+uint32_t is_pressed = 0;
+while (1)
+{
+    is_pressed = gpio_read(GPIO_PUSH_BUTTON);
+    if (!is_pressed)
+    {
+        printf("-- Push button pressed.\n");
+    }
+}
 ```
 
 ### blink01_bp_pt.c
