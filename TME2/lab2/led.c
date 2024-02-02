@@ -6,6 +6,8 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jorge MENDIETA, Lou THIRION");
 MODULE_DESCRIPTION("Module pour contrôler une LED");
 
+static int major;
+
 // ------------------------------------------------
 // PARAMETERS
 // ------------------------------------------------
@@ -53,8 +55,9 @@ struct file_operations fops_led =
 // ------------------------------------------------
 static int __init mon_module_init(void)
 {
-   printk(KERN_DEBUG "Hello Jorge MENDIETA, Lou THIRION !\n");
-   printk(KERN_DEBUG "btn=%d !\n", btn);
+   printk(KERN_DEBUG "Led module Jorge MENDIETA, Lou THIRION !\n");
+
+   major = register_chrdev(0, "led", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
 
    int i;
    for (i = 0; i < nbled; i++)
@@ -65,7 +68,8 @@ static int __init mon_module_init(void)
 
 static void __exit mon_module_cleanup(void)
 {
-   printk(KERN_DEBUG "Goodbye World!\n");
+   printk(KERN_DEBUG "Au revoir, ma poule!\n");
+   unregister_chrdev(major, "led");
 }
 
 
