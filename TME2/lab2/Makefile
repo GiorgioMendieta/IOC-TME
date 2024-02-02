@@ -3,7 +3,7 @@ ROUTER          = peri
 LOGIN           = thirion_mendieta
 LAB             = lab2
 
-MODULE          = led
+MODULE          = led0_MT
 
 CROSSDIR        = /users/enseig/franck/E-IOC
 # Répertoire du code source

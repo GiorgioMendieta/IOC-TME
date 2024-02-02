@@ -57,7 +57,7 @@ static int __init mon_module_init(void)
 {
    printk(KERN_DEBUG "Led module Jorge MENDIETA, Lou THIRION !\n");
 
-   major = register_chrdev(0, "led", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
+   major = register_chrdev(0, "led0_MT", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
 
    int i;
    for (i = 0; i < nbled; i++)
@@ -69,7 +69,7 @@ static int __init mon_module_init(void)
 static void __exit mon_module_cleanup(void)
 {
    printk(KERN_DEBUG "Au revoir, ma poule!\n");
-   unregister_chrdev(major, "led");
+   unregister_chrdev(major, "led0_MT");
 }
 
 
