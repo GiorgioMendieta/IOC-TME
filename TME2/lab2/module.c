@@ -5,9 +5,14 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jorge MENDIETA, Lou THIRION");
 MODULE_DESCRIPTION("Module pour contrôler une LED");
 
+static int btn;
+module_param(btn, int, 0);
+MODULE_PARM_DESC(btn, "numéro du port du bouton");
+
 static int __init mon_module_init(void)
 {
-   printk(KERN_DEBUG "Hello World <votre nom> !\n");
+   printk(KERN_DEBUG "Hello Jorge MENDIETA, Lou THIRION !\n");
+   printk(KERN_DEBUG "btn=%d !\n", btn);
    return 0;
 }
 
