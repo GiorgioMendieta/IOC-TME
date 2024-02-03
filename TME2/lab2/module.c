@@ -20,7 +20,6 @@ static int nbled;
 module_param_array(leds, int, &nbled, 0);
 MODULE_PARM_DESC(LEDS, "tableau des numéros de port LED");
 
-
 // ------------------------------------------------
 // Init + Exit
 // ------------------------------------------------
@@ -31,7 +30,7 @@ static int __init mon_module_init(void)
 
    int i;
    for (i = 0; i < nbled; i++)
-       printk(KERN_DEBUG "LED %d = %d\n", i, leds[i]);
+      printk(KERN_DEBUG "LED %d = %d\n", i, leds[i]);
 
    return 0;
 }
