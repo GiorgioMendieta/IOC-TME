@@ -25,19 +25,19 @@ MODULE_PARM_DESC(LEDS, "tableau des numéros de port LED");
 // ------------------------------------------------
 static int __init mon_module_init(void)
 {
-   printk(KERN_DEBUG "Hello Jorge MENDIETA, Lou THIRION !\n");
-   printk(KERN_DEBUG "btn=%d !\n", btn);
+   printk(KERN_DEBUG "MT: Hello Jorge MENDIETA, Lou THIRION !\n");
+   printk(KERN_DEBUG "MT: btn=%d !\n", btn);
 
    int i;
    for (i = 0; i < nbled; i++)
-      printk(KERN_DEBUG "LED %d = %d\n", i, leds[i]);
+      printk(KERN_DEBUG "MT: LED %d = %d\n", i, leds[i]);
 
    return 0;
 }
 
 static void __exit mon_module_cleanup(void)
 {
-   printk(KERN_DEBUG "Goodbye World!\n");
+   printk(KERN_DEBUG "MT: Goodbye World!\n");
 }
 
 module_init(mon_module_init);
