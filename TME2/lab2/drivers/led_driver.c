@@ -5,6 +5,8 @@
 #include <linux/fs.h>
 #include <linux/module.h>
 #include <linux/init.h>
+#include <asm/io.h>
+#include <mach/platform.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jorge MENDIETA, Lou THIRION");
