@@ -1,10 +1,10 @@
 #!/bin/sh
-module=$1
+MODULE=$1
 shift
-/sbin/insmod ./$module.ko $* || exit 1
-rm -f /dev/$module
-major=$(awk "\$2==\"$module\" {print \$1;exit}" /proc/devices)
-mknod /dev/$module c $major 0
-chmod 666 /dev/$module
+/sbin/insmod ./$MODULE.ko $* || exit 1
+rm -f /dev/$MODULE
+MAJOR=$(awk "\$2==\"$MODULE\" {print \$1;exit}" /proc/devices)
+mknod /dev/$MODULE c $major 0
+chmod 666 /dev/$MODULE
 
-echo "=> Device /dev/$module created with major=$major"
+echo "=> Device /dev/$MODULE created with major=$MAJOR\n"

@@ -58,7 +58,7 @@ gpio_fsel(uint32_t pin, uint32_t fun)
 
 // GPIO Write
 static void
-gpio_write(uint32_t pin, char val)
+gpio_write(uint32_t pin, char *val)
 {
     // Since there are 54 GPIO, dividing by 32 gives us the register where the pin is located
     uint32_t reg = pin / 32;
@@ -129,7 +129,7 @@ write_led_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
 {
     printk(KERN_DEBUG "led1_MT : write()\n");
     // Write buf char to the LED given by count
-    gpio_write(count, &buf);
+    gpio_write(count, buf);
 
     return count;
 }

@@ -3,7 +3,14 @@ ROUTER          = peri
 LOGIN           = thirion_mendieta
 LAB             = lab2
 
-MODULE          = led0_MT
+#MODULE          = test
+# strip removes whitespace from TB argument
+# ifeq checks if the argument is defined
+ifeq ($(strip $(MODULE)),)
+	@echo "MODULE not set. Use MODULE=<driver> to set it."
+	@echo "Example: make MODULE=led_driver"
+	@exit 1
+endif
 
 CROSSDIR        = /users/enseig/franck/E-IOC
 # Répertoire du code source

@@ -1,6 +1,6 @@
 #!/bin/sh
-module=$1
-/sbin/rmmod $module || exit 1
-rm -f /dev/$module
+MODULE=$1
+/sbin/rmmod $MODULE || exit 1
+rm -f /dev/$MODULE
 
-echo "=> Device /dev/$module removed"
+echo "=> Device /dev/$MODULE removed\n"
