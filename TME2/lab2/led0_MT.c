@@ -13,8 +13,8 @@ static int major;
 // ------------------------------------------------
 #define NBMAX_LED 32
 static int leds[NBMAX_LED];
-static int nbled;
-module_param_array(leds, int, &nbled, 0);
+static int nbLed;
+module_param_array(leds, int, &nbLed, 0);
 MODULE_PARM_DESC(LEDS, "tableau des numéros de port LED");
 
 static int
@@ -62,7 +62,7 @@ static int __init mon_module_init(void)
     major = register_chrdev(0, "led0_MT", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
 
     int i;
-    for (i = 0; i < nbled; i++)
+    for (i = 0; i < nbLed; i++)
         printk(KERN_DEBUG "led0_MT : %d = %d\n", i, leds[i]);
 
     return 0;
