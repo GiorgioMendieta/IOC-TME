@@ -12,7 +12,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jorge MENDIETA, Lou THIRION");
 MODULE_DESCRIPTION("Char driver pour contrôler une LED");
 
-// static int major;
+static int major;
 
 //------------------------------------------------------------------------------
 // GPIO ACCESS
@@ -159,15 +159,16 @@ struct file_operations fops_led =
 // ------------------------------------------------
 static int __init mon_module_init(void)
 {
-    int major;
-    major = register_chrdev(0, "led1_MT", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
-    if (major < 0)
+    int ret;
+    ret = register_chrdev(0, "led1_MT", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
+    if (ret < 0)
     {
         printk(KERN_WARNING "led1_MT : Probleme sur le major\n");
-        return major;
+        return ret;
     }
 
-    printk(KERN_DEBUG "led1_MT : Driver chargé !\n");
+    major = ret;
+    printk(KERN_DEBUG "led1_MT : Driver chargé! (Major: %i)\n", major);
     return 0;
 }
 
