@@ -58,7 +58,7 @@ gpio_fsel(uint32_t pin, uint32_t fun)
 
 // GPIO Write
 static void
-gpio_write(uint32_t pin, char *val)
+gpio_write(uint32_t pin, char val)
 {
     // Since there are 54 GPIO, dividing by 32 gives us the register where the pin is located
     uint32_t reg = pin / 32;
@@ -104,9 +104,9 @@ MODULE_PARM_DESC(LEDS, "LED port array numbers");
 static int
 open_led_MT(struct inode *inode, struct file *file)
 {
+    int i;
     printk(KERN_DEBUG "led1_MT : configuring LEDs as output\n");
     // GPIO Function select
-    int i;
     for (i = 0; i < nbLed; i++)
     {
         gpio_fsel(leds[i], GPIO_FSEL_OUTPUT);
@@ -117,9 +117,9 @@ open_led_MT(struct inode *inode, struct file *file)
 static ssize_t
 read_led_MT(struct file *file, char *buf, size_t count, loff_t *ppos)
 {
+    int val;
     printk(KERN_DEBUG "led1_MT : read()\n");
     // Read buf char from the LED given by count
-    int val;
     val = gpio_read(count);
     return val;
 }
@@ -129,7 +129,7 @@ write_led_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
 {
     printk(KERN_DEBUG "led1_MT : write()\n");
     // Write buf char to the LED given by count
-    gpio_write(count, buf);
+    gpio_write(count, *buf);
 
     return count;
 }
@@ -137,9 +137,9 @@ write_led_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
 static int
 release_led_MT(struct inode *inode, struct file *file)
 {
+    int i;
     printk(KERN_DEBUG "led1_MT : close()\n");
     // Turn of fleds
-    int i;
     for (i = 0; i < nbLed; i++)
     {
         gpio_write(leds[i], '0');
@@ -159,28 +159,16 @@ struct file_operations fops_led =
 // ------------------------------------------------
 static int __init mon_module_init(void)
 {
-    int ret;
-    ret = register_chrdev(0, "led1_MT", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
-    if (ret < 0)
-    {
-        printk(KERN_WARNING "led1_MT : Probleme sur le major\n");
-        return ret;
-    }
+    major = register_chrdev(0, "led1_MT", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
 
-    major = ret;
     printk(KERN_DEBUG "led1_MT : Driver chargé! (Major: %i)\n", major);
     return 0;
 }
 
 static void __exit mon_module_cleanup(void)
 {
-    int ret;
-    ret = unregister_chrdev(major, "led1_MT");
+    unregister_chrdev(major, "led1_MT");
 
-    if (ret < 0)
-    {
-        printk(KERN_WARNING "led1_MT : Probleme unregister\n");
-    }
     printk(KERN_DEBUG "led1_MT : Driver déchargé avec succès!\n");
 }
 
