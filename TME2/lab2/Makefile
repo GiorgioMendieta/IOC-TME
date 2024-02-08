@@ -3,7 +3,7 @@ ROUTER          = peri
 LOGIN           = thirion_mendieta
 LAB             = lab2
 
-MODULE          = led1_MT
+# MODULE          = led1_MT bouton_MT
 # strip removes whitespace from TB argument
 # ifeq checks if the argument is defined
 ifeq ($(strip $(MODULE)),)

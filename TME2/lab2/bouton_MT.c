@@ -10,7 +10,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jorge MENDIETA, Lou THIRION");
-MODULE_DESCRIPTION("Char driver pour contrôler une LED");
+MODULE_DESCRIPTION("Char driver pour lire un bouton");
 
 static int major;
 
@@ -18,8 +18,6 @@ static int major;
 // GPIO ACCESS
 //------------------------------------------------------------------------------
 
-// #define GPIO_LED0 4
-// #define GPIO_LED1 17
 // #define GPIO_PUSH_BUTTON 18
 
 #define GPIO_FSEL_INPUT 0
@@ -56,31 +54,6 @@ gpio_fsel(uint32_t pin, uint32_t fun)
     gpio_regs->gpfsel[reg] = (gpio_regs->gpfsel[reg] & ~mask) | ((fun << bit) & mask);
 }
 
-// GPIO Write
-static void
-gpio_write(uint32_t pin, char val)
-{
-    // Since there are 54 GPIO, dividing by 32 gives us the register where the pin is located
-    uint32_t reg = pin / 32;
-    // Getting the modulo gives us the exact bit of the pin in the register
-    uint32_t bit = pin % 32;
-
-
-
-    if (val == '1')
-    {
-        // Set GPIO 1
-        gpio_regs->gpset[reg] = (1 << bit);
-        printk(KERN_DEBUG "led1_MT : led %d ON\n", pin);
-    }
-    else
-    {
-        // Clear GPIO 0
-        gpio_regs->gpclr[reg] = (1 << bit);
-        printk(KERN_DEBUG "led1_MT : led %d OFF\n", pin);
-    }
-}
-
 // GPIO Read
 static uint32_t
 gpio_read(uint32_t pin)
@@ -88,9 +61,10 @@ gpio_read(uint32_t pin)
     uint32_t reg = pin / 32;
     uint32_t bit = pin % 32;
     uint32_t value;
+
     // Read GPIO in the register at the specified bit
     // and mask the desired bit to read its value
-    value = gpio_regs->gplev[reg] & (1 << bit);
+    value = gpio_regs->gplev[reg] & (0x1 << bit);
 
     return value;
 }
@@ -98,93 +72,89 @@ gpio_read(uint32_t pin)
 // ------------------------------------------------
 // Driver Functions & Parameters
 // ------------------------------------------------
-#define NBMAX_LED 32
-static int leds[NBMAX_LED];
-static int nbLed;
+#define NBMAX 32
+static int boutons[NBMAX];
+static int nbBouton;
 
-module_param_array(leds, int, &nbLed, 0);
-MODULE_PARM_DESC(leds, "LED port array numbers");
+module_param_array(boutons, int, &nbBouton, 0);
+MODULE_PARM_DESC(boutons, "Button port array numbers");
 
 static int
-open_led_MT(struct inode *inode, struct file *file)
+open_but_MT(struct inode *inode, struct file *file)
 {
     int i;
     // GPIO Function select
-    for (i = 0; i < nbLed; i++)
+    for (i = 0; i < nbBouton; i++)
     {
-        gpio_fsel(leds[i], GPIO_FSEL_OUTPUT);
-        printk(KERN_DEBUG "led1_MT : configuring GPIO %i as output\n", leds[i]);
+        gpio_fsel(boutons[i], GPIO_FSEL_INPUT);
+        printk(KERN_DEBUG "bouton_MT : configuring GPIO %i as input\n", boutons[i]);
     }
     return 0;
 }
 
 static ssize_t
-read_led_MT(struct file *file, char *buf, size_t count, loff_t *ppos)
+read_but_MT(struct file *file, char *buf, size_t count, loff_t *ppos)
 {
     int val;
-    printk(KERN_DEBUG "led1_MT : read()\n");
-    // Read buf char from the LED given by count
-    val = gpio_read(count);
+    int i;
+
+    for (i = 0; i < nbBouton; i++)
+    {
+        val = gpio_read(boutons[i]);
+    }
+
     if(val == 1){
+        printk(KERN_DEBUG "bouton_MT : Button pressed %i\n", val);
         buf = "1";
     }
     else{
         buf = "0";
     }
+
     return count;
 }
 
 static ssize_t
-write_led_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
+write_but_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
 {
-    int i;
-    printk(KERN_DEBUG "led1_MT : write(%c)\n", *buf);
+    printk(KERN_DEBUG "bouton_MT : write(%c)\n", *buf);
     
     // Write buf char to the LED given by count
-    for (i = 0; i < nbLed; i++)
-    {
-        gpio_write(leds[i], *buf);
-    }
 
-    return count;
-}
-
-static int
-release_led_MT(struct inode *inode, struct file *file)
-{
-    int i;
-    printk(KERN_DEBUG "led1_MT : close()\n");
-    // Turn off leds
-    for (i = 0; i < nbLed; i++)
-    {
-        gpio_write(leds[i], '0');
-    }
     return 0;
 }
 
-struct file_operations fops_led =
+static int
+release_but_MT(struct inode *inode, struct file *file)
+{
+    printk(KERN_DEBUG "bouton_MT : close()\n");
+
+    return 0;
+}
+
+struct file_operations fops_but =
     {
-        .open = open_led_MT,
-        .read = read_led_MT,
-        .write = write_led_MT,
-        .release = release_led_MT};
+        .open = open_but_MT,
+        .read = read_but_MT,
+        .write = write_but_MT,
+        .release = release_but_MT};
 
 // ------------------------------------------------
 // Init + Exit
 // ------------------------------------------------
 static int __init mon_module_init(void)
 {
-    major = register_chrdev(0, "led1_MT", &fops_led); // 0 est le numéro majeur qu'on laisse choisir par linux
+    major = register_chrdev(0, "bouton_MT", &fops_but); // 0 est le numéro majeur qu'on laisse choisir par linux
 
-    printk(KERN_DEBUG "led1_MT : Driver charge! (Major: %i)\n", major);
+    printk(KERN_DEBUG "bouton_MT : Driver charge! (Major: %i)\n", major);
     return 0;
 }
 
 static void __exit mon_module_cleanup(void)
 {
-    unregister_chrdev(major, "led1_MT");
+    unregister_chrdev(major, "bouton_MT");
 
-    printk(KERN_DEBUG "led1_MT : Driver decharge avec succes!\n");
+    printk(KERN_DEBUG "bouton_MT : Driver decharge avec succes!\n");
 }
 
 module_init(mon_module_init);
