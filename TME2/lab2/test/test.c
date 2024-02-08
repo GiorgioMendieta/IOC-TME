@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     char led;
     // char button;
 
-    int fdled0 = open("/dev/led1_MT", O_WR);
+    int fdled0 = open("/dev/led1_MT", O_WRONLY);
     // int fdbp = open("/dev/bp_XY", O_RD);
 
     if (fdled0 < 0)
