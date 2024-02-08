@@ -6,7 +6,7 @@ missing
 aclocal.m4
 .deps
 autom4te.cache
-*.o
+*.o*
 .project
 main
 .vscode
