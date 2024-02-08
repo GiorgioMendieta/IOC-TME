@@ -28,22 +28,15 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    // do
-    // {
-    //     led = (led == '0') ? '1' : '0';
-    //     write(fd, &led, 1);
-    //     sleep(1);
-    //     read(fd, &bp, 1);
-    // } while (bp == '0');
-
     while (1)
     {
         led = (led == '0') ? '1' : '0';
         write(fdled0, &led, sizeof(char));
-        sleep(half_period);
+        usleep(half_period*1000);
+	    printf("Blink: value = %c\n", led);
     }
 
-    close(fdled0);
+    // close(fdled0);
 
     return 0;
 }

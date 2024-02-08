@@ -65,15 +65,19 @@ gpio_write(uint32_t pin, char val)
     // Getting the modulo gives us the exact bit of the pin in the register
     uint32_t bit = pin % 32;
 
-    if (val == '0')
+
+
+    if (val == '1')
     {
         // Set GPIO 1
         gpio_regs->gpset[reg] = (1 << bit);
+        printk(KERN_DEBUG "led1_MT : led %d ON\n", pin);
     }
     else
     {
         // Clear GPIO 0
         gpio_regs->gpclr[reg] = (1 << bit);
+        printk(KERN_DEBUG "led1_MT : led %d OFF\n", pin);
     }
 }
 
@@ -121,16 +125,26 @@ read_led_MT(struct file *file, char *buf, size_t count, loff_t *ppos)
     printk(KERN_DEBUG "led1_MT : read()\n");
     // Read buf char from the LED given by count
     val = gpio_read(count);
-    return val;
+    if(val == 1){
+        buf = "1";
+    }
+    else{
+        buf = "0";
+    }
+    return count;
 }
 
 static ssize_t
 write_led_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
 {
+    int i;
     printk(KERN_DEBUG "led1_MT : write(%c)\n", *buf);
     
     // Write buf char to the LED given by count
-    gpio_write(count, *buf);
+    for (i = 0; i < nbLed; i++)
+    {
+        gpio_write(leds[i], *buf);
+    }
 
     return count;
 }
@@ -140,7 +154,7 @@ release_led_MT(struct inode *inode, struct file *file)
 {
     int i;
     printk(KERN_DEBUG "led1_MT : close()\n");
-    // Turn of fleds
+    // Turn off leds
     for (i = 0; i < nbLed; i++)
     {
         gpio_write(leds[i], '0');
