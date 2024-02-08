@@ -126,12 +126,14 @@ read_led_MT(struct file *file, char *buf, size_t count, loff_t *ppos)
     // Read buf char from the LED given by count
     val = gpio_read(count);
     if(val == 1){
-        buf = "1";
+        buf[0] = '1';
     }
     else{
-        buf = "0";
+        buf[0] = '0';
     }
-    return count;
+
+    //sizeof(char)
+    return 1;
 }
 
 static ssize_t

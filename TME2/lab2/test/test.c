@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     // Char drivers
     //------------------
     char led = '0';
-    char button;
+    char button = '0';
 
     int fdled0 = open("/dev/led1_MT", O_WRONLY);
     int fdbp = open("/dev/bouton_MT", O_RDONLY);
@@ -36,13 +36,13 @@ int main(int argc, char **argv)
 
     while (1)
     {
-        if(button == '0')
+        if(button == '1')
         {
             led = (led == '0') ? '1' : '0';
             write(fdled0, &led, sizeof(char));
             usleep(half_period);
-	        printf("Blink: value = %c\n", led);
-            printf("Button off\n");
+	        printf("LEDs value = %c\n", led);
+            printf("Button not pressed\n");
         }
         read(fdbp, &button, sizeof(char));
     }

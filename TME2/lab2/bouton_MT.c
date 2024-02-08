@@ -64,7 +64,7 @@ gpio_read(uint32_t pin)
 
     // Read GPIO in the register at the specified bit
     // and mask the desired bit to read its value
-    value = gpio_regs->gplev[reg] & (0x1 << bit);
+    value = (gpio_regs->gplev[reg] >> bit) & 0x1;
 
     return value;
 }
@@ -96,22 +96,19 @@ static ssize_t
 read_but_MT(struct file *file, char *buf, size_t count, loff_t *ppos)
 {
     int val;
-    int i;
 
-    for (i = 0; i < nbBouton; i++)
-    {
-        val = gpio_read(boutons[i]);
-    }
+    // TODO
+    val = gpio_read(boutons[0]);
+    printk(KERN_DEBUG "bouton_MT : Button value %d\n", val);
 
     if(val == 1){
-        printk(KERN_DEBUG "bouton_MT : Button pressed %i\n", val);
-        buf = "1";
+        buf[0] = '1';
     }
     else{
-        buf = "0";
+        buf[0] = '0';
     }
 
-    return count;
+    return sizeof(char);
 }
 
 static ssize_t
@@ -119,8 +116,6 @@ write_but_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
 {
     printk(KERN_DEBUG "bouton_MT : write(%c)\n", *buf);
     
-    // Write buf char to the LED given by count
-
     return 0;
 }
 
