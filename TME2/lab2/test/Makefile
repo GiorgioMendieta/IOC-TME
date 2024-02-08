@@ -1,5 +1,6 @@
 # Directory to save files ~/nom1_nom2
 DIR =thirion_mendieta
+LAB =lab2
 # Raspberry Pi Card Number
 RPI ?=25
 # Cross compiler
@@ -25,8 +26,8 @@ help:
 dep : test.x
 
 copy: *.x
-	@echo "Copying compiled files to ~/$(DIR)"
-	scp -P 622$(RPI) $^ pi@peri:$(DIR)
+	@echo "Copying compiled files to ~/$(DIR)/$(LAB)"
+	scp -P 622$(RPI) $^ pi@peri:$(DIR)/$(LAB)
 
 %.x: %.c
 	$(CROSS_COMPILE)gcc -D_REENTRANT -o $@ $^ $(LDFLAGS)

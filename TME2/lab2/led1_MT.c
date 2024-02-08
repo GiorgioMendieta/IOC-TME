@@ -99,17 +99,17 @@ static int leds[NBMAX_LED];
 static int nbLed;
 
 module_param_array(leds, int, &nbLed, 0);
-MODULE_PARM_DESC(LEDS, "LED port array numbers");
+MODULE_PARM_DESC(leds, "LED port array numbers");
 
 static int
 open_led_MT(struct inode *inode, struct file *file)
 {
     int i;
-    printk(KERN_DEBUG "led1_MT : configuring LEDs as output\n");
     // GPIO Function select
     for (i = 0; i < nbLed; i++)
     {
         gpio_fsel(leds[i], GPIO_FSEL_OUTPUT);
+        printk(KERN_DEBUG "led1_MT : configuring LED %i as output\n", leds[i]);
     }
     return 0;
 }
@@ -127,7 +127,8 @@ read_led_MT(struct file *file, char *buf, size_t count, loff_t *ppos)
 static ssize_t
 write_led_MT(struct file *file, const char *buf, size_t count, loff_t *ppos)
 {
-    printk(KERN_DEBUG "led1_MT : write()\n");
+    printk(KERN_DEBUG "led1_MT : write(%c)\n", *buf);
+    
     // Write buf char to the LED given by count
     gpio_write(count, *buf);
 
