@@ -206,6 +206,20 @@ void lcd_message(const char *txt) {
     }
 }
 
+void lcd_set_cursor(int y, int x) {
+    // Lignes du LCD (correspondent aux adresses DRAM du début de chaque ligne)
+    int a[] = {0x00, 0x40, 0x14, 0x54};
+    // 20 caractères par ligne
+    int len = 20;
+    if ((y < 0 || y > 3) || (x < 0 || x > 19)) {
+        fprintf(stderr, "ERROR: wrong coordinates\n");
+    }
+    int yoff = a[y];
+    int xoff = x;
+
+    lcd_command(LCD_SETDDRAMADDR + a[yoff] + xoff);
+}
+
 /*******************************************************************************
  * main : affichage d'un message
  ******************************************************************************/
@@ -235,6 +249,7 @@ int main(int argc, char **argv) {
     lcd_clear();
 
     /* affichage */
+    lcd_set_cursor(2, 5);
     lcd_message(argv[1]);
 
     /* Release the GPIO memory mapping */
