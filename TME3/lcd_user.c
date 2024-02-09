@@ -206,18 +206,18 @@ void lcd_message(const char *txt) {
     }
 }
 
-void lcd_set_cursor(int y, int x) {
+void lcd_set_cursor(int row, int col) {
     // Lignes du LCD (correspondent aux adresses DRAM du début de chaque ligne)
     int a[] = {0x00, 0x40, 0x14, 0x54};
     // 20 caractères par ligne
     int len = 20;
-    if ((y < 0 || y > 3) || (x < 0 || x > 19)) {
+    if ((col < 0 || col > 3) || (row < 0 || row > 19)) {
         fprintf(stderr, "ERROR: wrong coordinates\n");
     }
-    int yoff = a[y];
-    int xoff = x;
+    int yoff = a[col];
+    int xoff = row;
 
-    lcd_command(LCD_SETDDRAMADDR + a[yoff] + xoff);
+    lcd_command(LCD_SETDDRAMADDR | (a[yoff] + xoff));
 }
 
 /*******************************************************************************
