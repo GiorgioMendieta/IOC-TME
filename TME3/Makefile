@@ -1,22 +1,36 @@
-# changer les valeurs par dÃ©faut de RPI et DIR
-RPI?=20
-DIR?=binome
-APP=lcd_user
+# Directory to save files ~/nom1_nom2
+DIR =thirion_mendieta/lab3
+# Raspberry Pi Card Number
+RPI ?=25
+# Cross compiler
+CROSS_COMPILE ?=bcm2708hardfp-
+KERNELDIR      = /dsk/l1/misc/linux-rpi-3.18.y
 
 CFLAGS=-Wall -Wfatal-errors -O2
-LDFLAGS=-static -L$(LIB) -lgpio
+LDFLAGS=-static
 
-KERNELDIR       = /dsk/l1/misc/linux-rpi-3.18.y
-CROSSDIR        = /users/enseig/franck/IOC
-CROSS_COMPILE   = $(CROSSDIR)/arm-bcm2708hardfp-linux-gnueabi/bin/bcm2708hardfp-
+all: clean dep copy
 
-all:  $(APP).x upload
+help:
+	@echo ""
+	@echo "make [RPI=num] target"
+	@echo ""
+	@echo "     target :	help	this message"
+	@echo "		all	clean all and recompile"
+	@echo "		dep	compile if required"
+	@echo "		clean	clean all except sources"
+	@echo "		copy	compile then copy to card $(RPI) in directory $(DIR)"
+	@echo ""
 
-$(APP).x: $(APP).c
-        $(CROSS_COMPILE)gcc -o $@ $< -I$(INC) -O2 -static
 
-upload: 
-	scp -P622$(RPI) $(APP).x pi@peri:$(DIR)
+dep : lcd_user.x
+
+copy: *.x
+	@echo "Copying compiled files to ~/$(DIR)"
+	scp -P 622$(RPI) $^ pi@peri:$(DIR)
+
+%.x: %.c
+	$(CROSS_COMPILE)gcc -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.o *.x *~
+	rm -f *.o *.x *~ *.a
