@@ -38,7 +38,6 @@ int main() {
                 serverRequest[nbchar] = 0;
                 fprintf(stderr, "%s", serverRequest);
                 write(f2s, serverRequest, nbchar);
-                write(f2s, "arrêt de chialer\n", sizeof("arrêt de chialer\n"));
             }
         }
     } while (1);
