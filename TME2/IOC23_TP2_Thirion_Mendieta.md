@@ -8,12 +8,13 @@ Nous allons créer un pilote pour contrôler les LEDs sans devoir exécuter le p
 
 ### Questions
 
-- Quelle fonction est exécutée lorsqu'on insère le module du noyau ?
+- *Quelle fonction est exécutée lorsqu'on insère le module du noyau ?*
     `mon_module_init()`
-- Quelle fonction est exécutée lorsqu'on enlève le module du noyau ?
+
+- *Quelle fonction est exécutée lorsqu'on enlève le module du noyau ?*
     `mon_module_cleanup()`
 
-Nous avons compilé le module en utilisant le librairie du noyau de la RPI. Ensuite, nous avons inseré le module avec les commandes suivantes :
+Nous avons compilé le module en utilisant le librairie du noyau (`linux-rpi-3.18.y`) de la Raspberry Pi. Ensuite, nous avons inseré le module avec les commandes suivantes :
 
 ```sh
 sudo insmod ./module.ko : Insére le module compilé au noyau
@@ -41,11 +42,11 @@ static int __init mon_module_init(void)
 }
 ```
 
-```sh
+``` bash session
 sudo insmod ./module.ko btn=18
 ```
 
-Afind e vérifier blah blah
+Afin de vérifier blah blah
 
 ```sh
 pi@raspberrypi ~/thirion_mendieta/lab2 $ modinfo module.ko
@@ -81,13 +82,13 @@ dans la fonction init
 
 Après il faut recompiler et recopier le module, rmmod et insmod avec les nouveaux parametres
 
-```sh
+``` bash session
 sudo insmod ./module.ko btn=18 leds=4,17
 ```
 
 finalement, on peut bien vérifier le fonctionnement
 
-```sh
+``` bash session
 pi@raspberrypi ~/thirion_mendieta/lab2 $ dmesg
 [1029866.613523] Hello Jorge MENDIETA, Lou THIRION !
 [1029866.613565] btn=18 !
@@ -97,7 +98,7 @@ pi@raspberrypi ~/thirion_mendieta/lab2 $ dmesg
 
 ### Questions
 
-- Comment voir que le paramètre a bien été lu ?
+- *Comment voir que le paramètre a bien été lu ?*
     Nous pouvons afficher des messages du kernel en utilisant la fonction `printk()` afin de vérifier que le paramètre a été bien lu
 
 ## Étape 3 : création d'un driver qui ne fait rien, mais qui le fait dans le noyau
@@ -122,26 +123,27 @@ static void __exit mon_module_cleanup(void)
 }
 ```
 
-cat /proc/devices | grep led0_MT
+En exécutant la commande suivante, nous pouvons voir le numéro majeur :
 
-le numero majeur choisi par linux ete 246 dans notre cas
+``` bash session
+cat /proc/devices | grep led0_MT
+```
+
+Le numéro majeur choisi par linux ete **246** dans notre cas.
 
 Puis, il faut créer le noeud dans `/dev` et le rendre accesible pour tous les utilisateurs afin de ne pas faire sudo a chaque fois qu'on veut exécuter le fichier.
 
 ### Questions
 
-- Comment savoir que le device a été créé ?
-    Nous pouvons chercher sur le répertoire `/dev` et faire
+- *Comment savoir que le device a été créé ?*
+    Nous pouvons chercher sur le répertoire `/dev` et exécuter
 
-```sh
-pi@raspberrypi /dev $ ls led*
-led0_KR  led0_MT
-
+``` bash session
 pi@raspberrypi /dev $ ls -l led0_MT 
 crw-rw-rw- 1 root root 246, 0 Nov 20 11:01 led0_MT
 ```
 
-```sh
+``` bash session
 echo "rien" > /dev/led0_XY
 dd bs=1 count=1 < /dev/led0_XY
 dmesg | grep led0_MT
@@ -149,22 +151,24 @@ dmesg | grep led0_MT
 
 Grâce au string qu'on a ajouté au début de chaque message de `printk()` nous pouvons faire un grep pour trouver les messages qui appartiennet a notre module.
 
-Nous avons crée deux scripts bash pour automatizer linsertion et suppresion du driver, puis on les a copié vers la carte
+Nous avons crée deux scripts bash pour automatizer l'insertion (`insdev.sh`) et suppresion (`rmdev.sh`) du driver, puis nous avons les copiés vers la carte :
 
-'''sh
+''' bash session
 [mendieta@josquin lab2]$ scp -P 62225 insdev pi@peri:thirion_mendieta
 insdev                                                                             100%  255   101.5KB/s   00:00
 [mendieta@josquin lab2]$ scp -P 62225 rmdev pi@peri:thirion_mendieta
 rmdev                                                                              100%  106    39.4KB/s   00:00
 '''
 
-Nous avons bien vérifié le fonctionnement de ces deux scripts en les exécutant avec sudo, avec le nom correct du module (`led0_MT`) et la commande `lsmod`
+Nous avons bien vérifié le fonctionnement de ces deux scripts en les exécutant avec `sudo`, avec le nom correct du module (`led0_MT`) et la commande `lsmod`.
 
 ### Questions
 
-- Expliquer comment insdev récupère le numéro major
+- *Expliquer comment insdev récupère le numéro major*
 
   - D'abord le script récupère le nom du module donné par l'utilisateur
   - Le script tilise `awk` pour chercher dans `/proc/devices` un dispositif avec le nom du module (similaire à faire un cat devices | grep module)
   - il fait un print du premier argument qui sera envoyé a la sortie standard
   - Ce premier argument qui corresponde au numero majeur sera sauvegardé dans la variable `major`
+
+## Étape 4 : accès aux GPIO depuis les fonctions du pilote
