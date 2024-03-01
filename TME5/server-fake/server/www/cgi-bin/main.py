@@ -13,4 +13,4 @@ LEDS:<br/>
 </body>
 """
 
-print html
+print(html)
