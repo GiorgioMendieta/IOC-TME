@@ -29,4 +29,4 @@ LEDS:<br/>
 </body>
 """ % (val,)
 
-print html
+print(html)
