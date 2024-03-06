@@ -1,5 +1,5 @@
 # Directory to save files ~/nom1_nom2
-DIR =thirion_mendieta
+DIR =thirion_mendieta/lab1
 # Raspberry Pi Card Number
 RPI ?=25
 # Cross compiler
@@ -8,7 +8,7 @@ CROSS_COMPILE ?=bcm2708hardfp-
 CFLAGS=-Wall -Wfatal-errors -O2
 LDFLAGS=-static -lpthread
 
-all: clean dep copy
+all: dep copy clean
 
 help:
 	@echo ""

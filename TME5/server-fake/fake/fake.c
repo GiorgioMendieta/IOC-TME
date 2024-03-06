@@ -11,8 +11,8 @@
 int main()
 {
     int     f2s, s2f;                                       // fifo file descriptors
-    char    *f2sName = "/tmp/f2s_fw";                       // filo names
-    char    *s2fName = "/tmp/s2f_fw";                       //
+    char    *f2sName = "/tmp/f2s_TM";                       // filo names
+    char    *s2fName = "/tmp/s2f_TM";                       //
     char    serverRequest[MAXServerResquest];               // buffer for the request
     fd_set  rfds;                                           // flag for select
     struct  timeval tv;                                     // timeout
@@ -26,6 +26,8 @@ int main()
     s2f = open(s2fName, O_RDWR);                            // fifo openning
     f2s = open(f2sName, O_RDWR);
 
+    
+    printf("ledbp\n");
     do {
         FD_ZERO(&rfds);                                     // erase all flags
         FD_SET(s2f, &rfds);                                 // wait for s2f
@@ -34,6 +36,14 @@ int main()
             if (FD_ISSET(s2f, &rfds)) {                     // something to read
                 int nbchar;
                 if ((nbchar = read(s2f, serverRequest, MAXServerResquest)) == 0) break;
+                printf("test %s", serverRequest);
+                if(!strcmp(serverRequest, "w oui\n") && fork()==0){
+                    printf("blink\n");
+                    char *args[]={"../../lab1/blink0.x",NULL};
+                    execvp(args[0],args);
+                    return -1;
+                }
+
                 serverRequest[nbchar]=0;
                 fprintf(stderr,"%s", serverRequest);
                 write(f2s, serverRequest, nbchar);

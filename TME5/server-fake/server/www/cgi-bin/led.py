@@ -3,8 +3,8 @@ import cgi, os, time,sys
 form = cgi.FieldStorage()
 val = form.getvalue('val')
 
-s2fName = '/tmp/s2f_fw'
-f2sName = '/tmp/f2s_fw'
+s2fName = '/tmp/s2f_TM'
+f2sName = '/tmp/f2s_TM'
 s2f = open(s2fName,'w+')
 f2s = open(f2sName,'r',0)
 

@@ -1,5 +1,5 @@
 # Directory to save files ~/nom1_nom2
-DIR =thirion_mendieta
+DIR =thirion_mendieta/lab1
 # Raspberry Pi Card Number
 RPI ?=25
 # Cross compiler
