@@ -40,7 +40,8 @@ int main()
                 if(!strcmp(serverRequest, "w oui\n") && fork()==0){
                     printf("blink\n");
                     char *args[]={"../../lab1/blink0.x",NULL};
-                    execvp(args[0],args);
+                    if(execvp(args[0],args) == -1)
+                        perror("MARCHE PAS !!! \n");
                     return -1;
                 }
 
