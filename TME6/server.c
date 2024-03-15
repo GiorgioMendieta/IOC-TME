@@ -9,6 +9,8 @@
 
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
+
 
 void error(const char *msg)
 {
@@ -18,7 +20,7 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
-        int sockfd, newsockfd, portno;
+        int sockfd, newsockfd, portno, DBfd;
         socklen_t clilen;
         char buffer[256];
         struct sockaddr_in serv_addr, cli_addr;
@@ -28,6 +30,17 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "ERROR, no port provided\n");
                 exit(1);
         }
+
+        // Ouverture de la database
+        DBfd = open("./DataBase.txt", O_RDWR);
+        if(DBfd < 0)
+                error("ERROR opening database");
+        // test
+        // strcpy(buffer,"bonjour\n");
+        // if(write(DBfd, buffer, 8)<0)
+        //         error("ERROR écriture");
+        
+
 
         // 1) on crée la socket, SOCK_STREAM signifie TCP
 
@@ -61,9 +74,12 @@ int main(int argc, char *argv[])
                 if (n < 0)
                     error("ERROR reading from socket");
 
-                printf("Received packet from %s:%d\nData: [%s]\n\n",
-                       inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port),
-                       buffer);
+                // printf("Received packet from %s:%d\nData: [%s]\n\n",
+                //        inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port),
+                //        buffer);
+                //sprintf(buffer,"%s\n", );
+                if(write(DBfd, buffer, 8)<0)
+                        error("ERROR écriture");
 
                 close(newsockfd);
         }
