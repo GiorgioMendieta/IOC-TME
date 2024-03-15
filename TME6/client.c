@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
         char buffer[256];
 
         // Le client doit connaitre l'adresse IP du serveur, et son numero de port
-        if (argc < 3) {
-                fprintf(stderr,"usage %s hostname port\n", argv[0]);
+        if (argc < 5) {
+                fprintf(stderr,"usage %s hostname port nomVotant vote(ete ou hiver)\n", argv[0]);
                 exit(0);
         }
         portno = atoi(argv[2]);
@@ -54,7 +54,9 @@ int main(int argc, char *argv[])
         if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
                 error("ERROR connecting");
 
-        strcpy(buffer,"Coucou Peri\n");
+        strcpy(buffer,argv[3]);
+        strcat(buffer, " ");
+        strcat(buffer, argv[4]);
         n = write(sockfd,buffer,strlen(buffer));
         if (n != strlen(buffer))
                 error("ERROR message not fully trasmetted");

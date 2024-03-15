@@ -18,6 +18,25 @@ void error(const char *msg)
         exit(1);
 }
 
+char *get_nom_from_buffer(char *str){
+        char *res = malloc(sizeof(str));
+        strcpy(res, str);
+        char *res_to_return = res;
+        while(*res != ' ' && res != '\0')
+                res++;
+        *res = '\0';
+        return res_to_return;
+}
+
+char *get_vote_from_buffer(char *str){
+        char *res = malloc(sizeof(str));
+        strcpy(res, str);
+        while(*res != ' ' && res != '\0')
+                res++;
+        return ++res;
+}
+
+
 int main(int argc, char *argv[])
 {
         int sockfd, newsockfd, portno, DBfd;
@@ -78,7 +97,9 @@ int main(int argc, char *argv[])
                 //        inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port),
                 //        buffer);
                 //sprintf(buffer,"%s\n", );
-                if(write(DBfd, buffer, 8)<0)
+                printf("%s a voté %s\n", get_nom_from_buffer(buffer), get_vote_from_buffer(buffer));
+                strcat(buffer, "\n");
+                if(write(DBfd, buffer, sizeof(buffer))<0)
                         error("ERROR écriture");
 
                 close(newsockfd);
