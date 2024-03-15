@@ -1,4 +1,5 @@
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -Werror -g
+SOURCES = test_hashTab.c hashTab.c
 dep : server client usage
 all : clean dep
 clean :
@@ -11,3 +12,6 @@ usage :
 	@echo "    On the client computer, start the client:"
 	@echo "       ./client ipserver portserver"
 	@echo ""
+
+test : $(SOURCES)
+	gcc $(CFLAGS) -o $@ $^
