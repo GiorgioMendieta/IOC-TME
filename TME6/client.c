@@ -13,6 +13,7 @@ void error(const char *msg)
         exit(0);
 }
 
+// Client takes 4 arguments: hostname, port, nomVotant, vote
 int main(int argc, char *argv[])
 {
         int sockfd, portno, n;
@@ -23,9 +24,10 @@ int main(int argc, char *argv[])
 
         // Le client doit connaitre l'adresse IP du serveur, et son numero de port
         if (argc < 5) {
-                fprintf(stderr,"usage %s hostname port nomVotant vote(ete ou hiver)\n", argv[0]);
+                fprintf(stderr,"Usage : ./client hostname port nomVotant vote(ete ou hiver)\n");
                 exit(0);
         }
+
         portno = atoi(argv[2]);
 
         // 1) Création de la socket, INTERNET et TCP
@@ -54,15 +56,17 @@ int main(int argc, char *argv[])
         if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
                 error("ERROR connecting");
 
-        strcpy(buffer,argv[3]);
+        // Copy the voter name and vote into the buffer
+        strcpy(buffer, argv[3]);
         strcat(buffer, " ");
         strcat(buffer, argv[4]);
-        n = write(sockfd,buffer,strlen(buffer));
+
+        // On envoie le message au serveur
+        n = write(sockfd, buffer, strlen(buffer));
         if (n != strlen(buffer))
-                error("ERROR message not fully trasmetted");
+                error("ERROR message not fully trasmitted");
 
-        // On ferme la socket
-
+        // On ferme la socket pour sortir proprement
         close(sockfd);
         return 0;
 }
