@@ -1,17 +1,23 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "hashTab.h"
 
 struct hashTab *init(int sizeoftab){
-    struct hashTab *ht = malloc(sizeoftab*sizeof(struct cell));
+    struct hashTab *ht = malloc(sizeof(struct hashTab));
+    ht->tab = malloc(sizeoftab*sizeof(struct cell));
     ht->size = sizeoftab;
     return ht;
 }
 
 int hash(char *nom, int sizeoftab){
-    int res = 0;
-    for(; nom++; (*nom)!='\0'){
-        res = (res ^ ((int) *nom));
+    int res = 1;
+    int sizeof_nom = sizeof(nom);
+    //for(; nom++; (*nom)!='\0'){
+    int i=0;
+    for(; i<sizeof_nom; i++) {
+        //res = (res ^ ((int) *nom));
+        res = res + (int)nom[i];
     }
     return res % sizeoftab;
 }
@@ -25,11 +31,13 @@ int insere(struct hashTab *ht, char *nom, char *vote){
     new->nom = nom;
     new->vote = vote;
 
-    struct cell *c = ht->tab[h];
+    struct cell *c = (ht->tab)[h];
     if(c){
         while(c->next)
             c = c->next;
         c->next = new;
+    } else {
+        ht->tab[h] = new;
     }
     return 0;
 }

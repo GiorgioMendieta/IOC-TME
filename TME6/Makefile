@@ -3,7 +3,7 @@ SOURCES = test_hashTab.c hashTab.c
 dep : server client usage
 all : clean dep
 clean :
-	rm server client
+	rm server client hashTab.o test test_hashTab.o
 usage :
 	@echo ""
 	@echo "Usage :"
@@ -14,4 +14,4 @@ usage :
 	@echo ""
 
 test : $(SOURCES)
-	gcc $(CFLAGS) -o $@ $^
+	gcc -g -o $@ $^
