@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 
+#include "hashTab.h"
 
 void error(const char *msg)
 {
@@ -59,6 +60,8 @@ int main(int argc, char *argv[])
         // if(write(DBfd, buffer, 8)<0)
         //         error("ERROR écriture");
         
+        // Création de la structure hashTab
+        struct hashTab *hashtab = init(100);
 
 
         // 1) on crée la socket, SOCK_STREAM signifie TCP
@@ -92,15 +95,28 @@ int main(int argc, char *argv[])
                 n = read(newsockfd, buffer, 255);
                 if (n < 0)
                     error("ERROR reading from socket");
+                
+                char *nom = get_nom_from_buffer(buffer);
+                char *vote = get_vote_from_buffer(buffer);
 
                 // printf("Received packet from %s:%d\nData: [%s]\n\n",
                 //        inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port),
                 //        buffer);
                 //sprintf(buffer,"%s\n", );
+                
+                /*
                 printf("%s a voté %s\n", get_nom_from_buffer(buffer), get_vote_from_buffer(buffer));
-                strcat(buffer, "\n");
-                if(write(DBfd, buffer, sizeof(buffer))<0)
+                strcat(buffer, "\n"); // ajoute un retour à la ligne
+                if(write(DBfd, buffer, sizeof(buffer))<0) // on écrit dans la database
                         error("ERROR écriture");
+                */
+
+                if(!existe(hashtab, nom)){
+                        insere(hashtab, nom, vote);
+                        printf("%s a voté %s\n", nom, vote);
+                } else {
+                        printf("%s a déjà voté %s\n", nom, vote);
+                }
 
                 close(newsockfd);
         }

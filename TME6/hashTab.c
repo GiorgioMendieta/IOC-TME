@@ -46,11 +46,11 @@ int existe(struct hashTab *ht, char *nom){
     int h = hash(nom, ht->size);
     struct cell *c = ht->tab[h];
     if(c){
-        while(c->next){
-            if(strcmp(c->nom, nom))
+        do {
+            if(!strcmp(c->nom, nom))
                 return 1;
             c = c->next;
-        }
+        } while(c);
     }
     return 0; 
 }
