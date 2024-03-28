@@ -13,6 +13,8 @@
 
 #include "hashTab.h"
 
+#define MAX_CLIENTS 5
+
 // Print error message and exit
 void error(const char *msg)
 {
@@ -72,19 +74,16 @@ int main(int argc, char *argv[])
         // if(write(DBfd, buffer, 8)<0)
         //         error("ERROR écriture");
         
-        // Création de la structure hashTab
+        // Création de la structure hashTab avec 100 cases
         struct hashTab *hashtab = init(100);
 
-
         // 1) on crée la socket, SOCK_STREAM signifie TCP
-
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0)
                 error("ERROR opening socket");
 
         // 2) on réclame au noyau l'utilisation du port passé en paramètre 
         // INADDR_ANY dit que la socket va être affectée à toutes les interfaces locales
-
         bzero((char *) &serv_addr, sizeof(serv_addr));
         portno = atoi(argv[1]);
         serv_addr.sin_family = AF_INET;
@@ -97,8 +96,7 @@ int main(int argc, char *argv[])
 
         // On commence à écouter sur la socket. Le 5 est le nombre max
         // de connexions pendantes
-
-        listen(sockfd, 5);
+        listen(sockfd, MAX_CLIENTS);
         while (1) {
                 // Wait for a connection
                 newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);

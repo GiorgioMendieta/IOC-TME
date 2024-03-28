@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
                 exit(0);
         }
 
+        // On récupère le numéro de port 
         portno = atoi(argv[2]);
 
         // 1) Création de la socket, INTERNET et TCP
