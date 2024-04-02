@@ -14,9 +14,12 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
 	print("sisub: msg received with topic: {} and payload: {}".format(msg.topic, str(msg.payload)))
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=CLIENT_ID, clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
+#client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=CLIENT_ID, clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
+client = mqtt.Client(client_id=CLIENT_ID, clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
+
 client.on_connect = on_connect
 client.on_message = on_message
+
 client.username_pw_set(None, password=None)
 client.connect(THE_BROKER, port=1883, keepalive=60)
 
