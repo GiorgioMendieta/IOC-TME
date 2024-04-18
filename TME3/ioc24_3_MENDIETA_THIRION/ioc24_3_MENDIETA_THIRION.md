@@ -2,8 +2,8 @@
 
 ## Auteurs
 
-- Lou THIRION
-- Jorge MENDIETA
+- Lou THIRION 28614980
+- Jorge MENDIETA 21304469
 
 ## 1. Configuration des GPIO pour le pilotage de l'écran
 Dans le tableau ci-dessous, nous pouvons voir le mapping des GPIO pour les différents signaux de contrôle de l'écran LCD :

@@ -1,5 +1,8 @@
 # Programmation sur ESP32
 
+* Lou THIRION 28614980
+* Jorge MENDIETA 21304469
+
 L'objectif de cette séance et de prendre en main l'ESP32 et les outils necéssaires pour la contrôler, dont l'environnement de développement pour arduino qui nous servira pour écrire les programmes pour l'ESP32.
 
 Pour ce faire, nous allons commencer par essayer de contrôler différents périphériques, certains sont présents directment sur la carte de l'ESP32 et d'autres sont à rajouter :

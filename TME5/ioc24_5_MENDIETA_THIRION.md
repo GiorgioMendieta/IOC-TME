@@ -1,5 +1,8 @@
 # Serveur WEB minimaliste
 
+* Lou THIRION 28614980
+* Jorge MENDIETA 21304469
+
 ## Accès au serveur HTTP de la Raspberry par un tunnel ssh
 
 ## Communication par FIFO 

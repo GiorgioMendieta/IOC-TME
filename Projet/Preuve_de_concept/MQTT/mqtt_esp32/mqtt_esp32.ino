@@ -65,13 +65,13 @@ void setup()
 
   Serial.println("Server connecting");
   
-  client.setServer("192.168.43.246", 1883);
+  client.setServer("192.168.43.173", 1883);
   client.setCallback(callback); 
 
   while(!client.connected()) {
   if (client.connect("arduinoClient")) {
     Serial.println("publish");
-    client.publish("hello","connection");
+    client.publish("hello","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");
     client.subscribe("topic");
   } else {
     Serial.println("connection failed");
