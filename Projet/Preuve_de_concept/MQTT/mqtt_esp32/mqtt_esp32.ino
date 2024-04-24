@@ -16,8 +16,8 @@
 /*byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
 IPAddress ip(172, 16, 0, 100);
 IPAddress server(172, 16, 0, 2);*/
-const char* ssid     = "connexionLT";
-const char* password = "thirionlou";
+const char* ssid     = "Livebox-2246";
+const char* password = "yA4gXPmJobazc3HXmb";
 
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println("Message arrived");
@@ -65,13 +65,13 @@ void setup()
 
   Serial.println("Server connecting");
   
-  client.setServer("192.168.43.173", 1883);
+  client.setServer("192.168.1.95", 1883);
   client.setCallback(callback); 
 
   while(!client.connected()) {
   if (client.connect("arduinoClient")) {
     Serial.println("publish");
-    client.publish("hello","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");
+    client.publish("hello","salut ma grosse poule");
     client.subscribe("topic");
   } else {
     Serial.println("connection failed");
