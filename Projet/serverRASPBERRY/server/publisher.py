@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 # Création de la fifo vers le server
 s2fName = '/tmp/s2f_TM'
 s2f = open(s2fName,'w+')
-res = s2f.readline()
+#res = s2f.readline()
 
 # Publishment
 
@@ -20,5 +20,8 @@ client.on_connect = on_connect # Assignation des callbacks
 #client.on_message = on_message
 client.connect("192.168.1.95", 1883, 60) # Connexion au broker
 
-client.publish("hello", res) # Publication d'un message
-client.loop_forever() # pour attendre les messages
+while(1):
+	res = s2f.readline()
+	if(res):
+		client.publish("topic", res) # Publication d'un message
+#client.loop_forever() # pour attendre les messages
