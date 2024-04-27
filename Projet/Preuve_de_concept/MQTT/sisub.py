@@ -1,7 +1,9 @@
 import paho.mqtt.client as mqtt
 
-THE_BROKER = "iot.eclipse.org"
-THE_TOPIC = "$SYS/#"
+# THE_BROKER = "iot.eclipse.org"
+THE_BROKER = "192.168.1.95"
+# THE_TOPIC = "$SYS/#"
+THE_TOPIC = "/inTopic"
 CLIENT_ID = ""
 
 # The callback for when the client receives a CONNACK response from the server.

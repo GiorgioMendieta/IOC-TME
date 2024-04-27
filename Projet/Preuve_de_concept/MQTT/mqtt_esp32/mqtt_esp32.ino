@@ -1,88 +1,129 @@
 /*
  Basic MQTT example with Authentication
 
-  - connects to an MQTT server, providing username
-    and password
-  - publishes "hello world" to the topic "outTopic"
-  - subscribes to the topic "inTopic"
+  - connects to an MQTT server, providing username and password
+  - publishes "hello world" to the topic "/outTopic"
+  - subscribes to the topic "/inTopic"
 */
 
 #include <SPI.h>
-//#include <Ethernet.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// Update these with values suitable for your network.
-/*byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
-IPAddress ip(172, 16, 0, 100);
-IPAddress server(172, 16, 0, 2);*/
-const char* ssid     = "Livebox-2246";
-const char* password = "yA4gXPmJobazc3HXmb";
-
-void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.println("Message arrived");
-  Serial.println("");
-  Serial.println(topic); 
-  for (int i = 0; i < length; i++) { 
-    Serial.print((char) payload[i]); 
-  }
-  Serial.println("");
-}
-
-//EthernetClient ethClient;
-//PubSubClient client(server, 1883, callback, ethClient);
-WiFiClient espClient; 
+// WiFi parameters
+const char *ssid = "Livebox-2246";
+const char *password = "yA4gXPmJobazc3HXmb";
+// MQTT parameters
+const char *mqtt_broker = "192.168.1.95";
+WiFiClient espClient;
 PubSubClient client(espClient);
 
-void setup()
+unsigned long timeSinceLastMsg = 0;
+#define MSG_INTERVAL 2000
+#define MSG_BUFFER_SIZE (50)
+char msg[MSG_BUFFER_SIZE];
+int value = 0;
+
+// Connect to WiFi
+void wifi_setup()
 {
-  //Ethernet.begin(mac, ip);
-  // Note - the default maximum packet size is 128 bytes. If the
-  // combined length of clientId, username and password exceed this use the
-  // following to increase the buffer size:
-  // client.setBufferSize(255);
-  Serial.begin(9600);
+  // Small delay to fix some issues with WiFi stability
   delay(10);
 
-    // We start by connecting to a WiFi network
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  // Set WiFi mode to station (client)
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
 
-    Serial.println();
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(1000);
+  }
 
-    WiFi.begin(ssid, password);
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
 
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
+// Blocking function to connect to MQTT server
+// TODO: Adapt to non-blocking version
+void connect_mqtt()
+{
+  // Wait for connection
+  while (!client.connected())
+  {
+    Serial.print("Device disconnected from MQTT server. Trying to reconnect...");
+    String clientId = "arduinoClient";
+
+    // Attempt connection
+    if (client.connect(clientId))
+    {
+      Serial.println("Connected to MQTT server!");
+      // Publish a message to the topic "/outTopic"
+      Serial.println("publish");
+      client.publish("/outTopic", "salut ma grosse poule reconnectée");
+      // Subscribe to the topic "/inTopic"
+      client.subscribe("/inTopic");
     }
-
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-
-  Serial.println("Server connecting");
-  
-  client.setServer("192.168.1.95", 1883);
-  client.setCallback(callback); 
-
-  while(!client.connected()) {
-  if (client.connect("arduinoClient")) {
-    Serial.println("publish");
-    client.publish("hello","salut ma grosse poule");
-    client.subscribe("topic");
-  } else {
-    Serial.println("connection failed");
+    else
+    {
+      Serial.println("Connection to MQTT server failed");
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" trying again in 5 seconds");
+      // Wait 5 seconds before retrying
+      delay(5000);
+    }
   }
-  delay(500);
+}
+
+// Function called when a message arrives
+void callback(char *topic, byte *payload, unsigned int length)
+{
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++)
+  {
+    Serial.print((char)payload[i]);
   }
+  Serial.println();
+
+  // Do something according to the message
+}
+
+// Run setup once
+void setup()
+{
+  Serial.begin(9600);
+  wifi_setup();
+  Serial.println("Connecting to MQTT broker...");
+  client.setServer(mqtt_broker, 1883);
+  client.setCallback(callback);
 }
 
 void loop()
 {
+  // Check if the client is connected to the server
+  if (!client.connected())
+  {
+    connect_mqtt();
+  }
   client.loop();
-  client.publish("hello","hello world");
-  delay(1000);
+
+  // Publish a message every 2 seconds
+  unsigned long now = millis();
+  if (now - lastMsg > MSG_INTERVAL)
+  {
+    lastMsg = now;
+    ++value;
+    snprintf(msg, MSG_BUFFER_SIZE, "salut ma grosse poule #%ld", value);
+    Serial.print("Publish message: ");
+    Serial.println(msg);
+    client.publish("/outTopic", msg);
+  }
 }
