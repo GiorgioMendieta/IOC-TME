@@ -16,3 +16,4 @@ output
 *.ko*
 *.mod*
 venv/
+__pycache__
