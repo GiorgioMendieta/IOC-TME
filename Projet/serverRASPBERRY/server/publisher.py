@@ -1,4 +1,16 @@
+# MQTT Publisher example
+
 import paho.mqtt.client as mqtt
+import sys
+
+# The callback for when the client receives a CONNACK response from the server.
+def on_connect(client, userdata, flags, rc):
+	print("Connected to ", client._host, "port: ", client._port)
+	print("Flags: ", flags, "returned code: ", rc)
+
+# The callback for when a message is received from the server.
+def on_message(client, userdata, msg):
+	print("sisub: msg received with topic: {} and payload: {}".format(msg.topic, str(msg.payload)))
 
 MQTT_BROKER = "192.168.1.95"
 CLIENT_ID = ""
@@ -6,16 +18,6 @@ CLIENT_ID = ""
 # Création de la fifo vers le server
 s2fName = '/tmp/s2f_TM'
 s2f = open(s2fName,'w+')
-
-# The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
-	print("Connected to ", client._host, "port: ", client._port)
-	print("Flags: ", flags, "returned code: ", rc)
-	client.subscribe("/inTopic", qos=0)
-
-# The callback for when a message is received from the server.
-def on_message(client, userdata, msg):
-	print("sisub: msg received with topic: {} and payload: {}".format(msg.topic, str(msg.payload)))
 
 # Version 2 of the callback API since the version 1 is deprecated
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -26,10 +28,17 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 client.username_pw_set(None, password=None)
-client.connect(MQTT_BROKER, port=1883, keepalive=60) # Connexion au broker
+if client.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
+	print("Connection failed")
+	sys.exit(1)
+
+# Subscribe to topic after connection
+client.subscribe("/inTopic", qos=0)
 
 while(1):
 	res = s2f.readline()
 	if(res):
-		client.publish("/outTopic", res) # Publication d'un message
+		# Publish message form fifo
+		client.publish("/outTopic", res)
+
 #client.loop_forever() # pour attendre les messages
