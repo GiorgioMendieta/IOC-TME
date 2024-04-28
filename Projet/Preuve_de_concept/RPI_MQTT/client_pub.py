@@ -13,7 +13,7 @@ def on_message(client, userdata, msg):
 	print("sisub: msg received with topic: {} and payload: {}".format(msg.topic, str(msg.payload)))
 
 MQTT_BROKER = "192.168.1.95"
-CLIENT_ID = ""
+CLIENT_ID = "RPIClient-1"
 
 # Création de la fifo vers le server
 s2fName = '/tmp/s2f_TM'
@@ -33,12 +33,13 @@ if client.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
 	sys.exit(1)
 
 # Subscribe to topic after connection
-client.subscribe("/inTopic", qos=0)
+client.subscribe("esp32/photoVal", qos=0)
+client.subscribe("esp32/photoState", qos=0)
 
 while(1):
 	res = s2f.readline()
 	if(res):
 		# Publish message form fifo
-		client.publish("/outTopic", res)
+		client.publish("rpi/broadcast", res)
 
 #client.loop_forever() # pour attendre les messages
