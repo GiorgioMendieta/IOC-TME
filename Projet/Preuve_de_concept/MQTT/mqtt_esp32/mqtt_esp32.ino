@@ -9,12 +9,14 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include "WiFiCredentials.h" // File containing WiFi credentials
 
 // WiFi parameters
-const char *ssid = "Livebox-2246";
-const char *password = "yA4gXPmJobazc3HXmb";
+const char *ssid = SSID;
+const char *password = PASSWORD;
 // MQTT parameters
-const char *mqtt_broker = "192.168.1.95";
+const char *mqtt_broker = MQTT_BROKER;
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 
