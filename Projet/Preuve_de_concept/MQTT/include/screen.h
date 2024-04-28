@@ -6,7 +6,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <WiFi.h>
-#include "credentials.h"
+
 #include "utils.h"
 
 // OLED display parameters
@@ -25,7 +25,7 @@ struct t_screen
     int val;
 };
 
-void setup_Oled(struct t_screen *Oled, int timer, unsigned long period)
+void setup_screen(struct t_screen *Oled, int timer, unsigned long period)
 {
 
     Wire.begin(4, 15); // pins SDA , SCL
@@ -58,7 +58,7 @@ void setup_Oled(struct t_screen *Oled, int timer, unsigned long period)
     display.display();
 }
 
-void loop_Oled(struct t_screen *ctx, int val)
+void loop_screen(struct t_screen *ctx, int val)
 {
     if (!waitFor(ctx->timer, ctx->period))
         return; // sort s'il y a moins d'une période écoulée
@@ -74,14 +74,12 @@ void loop_Oled(struct t_screen *ctx, int val)
     }
     else
     {
-        display.print("SSID: ");
-        display.println(WIFI_SSID);
         display.print("IP: ");
         display.println(WiFi.localIP());
     }
     display.println("");
 
-    display.println("Photoresistance: ");
+    display.print("Photoresistance: ");
     display.print(val, DEC);
     display.println("%");
     display.display();

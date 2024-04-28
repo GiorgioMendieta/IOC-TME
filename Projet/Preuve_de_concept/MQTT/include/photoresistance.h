@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <PubSubClient.h>
+#include "mqtt.h"
 #include "utils.h"
 
 #define PHOTOR_PIN 36
@@ -16,7 +17,7 @@ struct t_photoresistance
     int pin;
 };
 
-void setup_Photo(struct t_photoresistance *ctx, int timer, unsigned long period)
+void setup_photo(struct t_photoresistance *ctx, int timer, unsigned long period)
 {
     ctx->timer = timer;
     ctx->period = period;
@@ -24,7 +25,7 @@ void setup_Photo(struct t_photoresistance *ctx, int timer, unsigned long period)
     ctx->pin = PHOTOR_PIN;
 }
 
-void loop_Photo(struct t_photoresistance *ctx)
+void loop_photo(struct t_photoresistance *ctx)
 {
     const char *photo_topic = "/esp32/photoresistance";
     // Wait for the period to elapse
@@ -37,5 +38,5 @@ void loop_Photo(struct t_photoresistance *ctx)
     Serial.print(photo_topic);
     Serial.print("]: ");
     Serial.println(msg);
-    // client.publish(photo_topic, msg); //TODO: Uncomment this line
+    client.publish(photo_topic, msg);
 }

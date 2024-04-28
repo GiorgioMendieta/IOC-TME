@@ -3,10 +3,13 @@
 #include <Arduino.h>
 #include <PubSubClient.h> // MQTT library
 #include <WiFi.h>
+
 #include "credentials.h"
+#include "internet.h"
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+const char *clientId = "ESP32Client-1";
 
 // Blocking function to connect to MQTT server
 // TODO: Adapt to non-blocking version
@@ -17,12 +20,11 @@ void connect_mqtt()
     // Wait for connection
     while (!client.connected())
     {
-        const char *clientId = "ESP32Client-1";
         // First check WiFi connection
         if (WiFi.status() != WL_CONNECTED)
         {
             // if not connected, then first connect to wifi
-            // setup_wifi(WIFI_SSID, WIFI_PASSWORD); //TODO: Uncomment this line
+            setup_wifi(WIFI_SSID, WIFI_PASSWORD);
         }
 
         Serial.println("Attempting MQTT connection...");
@@ -34,19 +36,20 @@ void connect_mqtt()
             digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
 
             client.publish("esp32/photoresistance", "Connected photoresistance!");
-            if (!client.subscribe("rpi/broadcast"))
-            {
-                Serial.println("Failed to subscribe to topic");
-            }
         }
         else
         {
             Serial.print("Connection to MQTT server failed, rc=");
             Serial.print(client.state());
-            Serial.println(" trying again in 5 seconds");
+            Serial.println(". Trying again in 5 seconds");
             // Wait 5 seconds before retrying
             delay(5000);
         }
+    }
+
+    if (!client.subscribe("rpi/broadcast"))
+    {
+        Serial.println("Failed to subscribe to topic");
     }
 }
 
