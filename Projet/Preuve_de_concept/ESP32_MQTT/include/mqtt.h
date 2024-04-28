@@ -11,46 +11,59 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 const char *clientId = "ESP32Client-1";
 
+struct t_mqtt
+{
+    int timer;
+    unsigned long period;
+};
+
+// Function prototypes
+void callback(char *topic, byte *payload, unsigned int length);
+
+void setup_mqtt(struct t_mqtt *ctx, int timer, unsigned long period)
+{
+    ctx->timer = timer;
+    ctx->period = period;
+
+    client.setServer(MQTT_BROKER, MQTT_PORT);
+    client.setCallback(callback);
+}
+
 // Blocking function to connect to MQTT server
-// TODO: Adapt to non-blocking version
-void connect_mqtt()
+boolean connect_mqtt()
 {
     digitalWrite(LED_BUILTIN, LOW);
 
-    // Wait for connection
-    while (!client.connected())
+    // First check WiFi connection
+    if (WiFi.status() != WL_CONNECTED)
     {
-        // First check WiFi connection
-        if (WiFi.status() != WL_CONNECTED)
-        {
-            // if not connected, then first connect to wifi
-            setup_wifi(WIFI_SSID, WIFI_PASSWORD);
-        }
-
-        Serial.println("Attempting MQTT connection...");
-
-        // Attempt connection
-        if (client.connect(clientId))
-        {
-            Serial.println("Connected to MQTT server!");
-            digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
-
-            client.publish("esp32/photoresistance", "Connected photoresistance!");
-        }
-        else
-        {
-            Serial.print("Connection to MQTT server failed, rc=");
-            Serial.print(client.state());
-            Serial.println(". Trying again in 5 seconds");
-            // Wait 5 seconds before retrying
-            delay(5000);
-        }
+        // if not connected, then first connect to wifi
+        setup_wifi(WIFI_SSID, WIFI_PASSWORD);
     }
 
-    if (!client.subscribe("rpi/broadcast"))
+    Serial.println("Attempting MQTT connection...");
+
+    // Attempt connection
+    if (client.connect(clientId))
     {
-        Serial.println("Failed to subscribe to topic");
+        Serial.println("Connected to MQTT server!");
+        digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
+
+        if (!client.subscribe("rpi/broadcast"))
+        {
+            Serial.println("Failed to subscribe to topic");
+        }
+
+        client.publish("esp32/photoresistance", "Connected photoresistance!");
     }
+    else
+    {
+        Serial.print("Connection to MQTT server failed, rc=");
+        Serial.print(client.state());
+        Serial.println(". Trying again in 5 seconds");
+    }
+
+    return client.connected();
 }
 
 // Function called when a message arrives on any subscribed topic
@@ -77,17 +90,17 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 }
 
-void setup_mqtt()
-{
-    client.setServer(MQTT_BROKER, MQTT_PORT);
-    client.setCallback(callback);
-}
-
-void loop_mqtt()
+void loop_mqtt(struct t_mqtt *ctx)
 {
     // Check if the client is connected to the server
     if (!client.connected())
     {
+        // Wait for the period to elapse
+        // TODO: Verify if this is the correct way to wait for the period
+        if (!waitFor(ctx->timer, ctx->period))
+        {
+            return;
+        }
         connect_mqtt();
     }
     client.loop();

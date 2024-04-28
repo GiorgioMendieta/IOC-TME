@@ -13,6 +13,7 @@
 // Task declarations
 struct t_photoresistance Photoresistance;
 struct t_screen Screen;
+struct t_mqtt Mqtt;
 
 // Run setup once
 void setup()
@@ -23,16 +24,16 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   // Initialize tasks
   setup_photo(&Photoresistance, TIMER0, 500000);
-  setup_screen(&Screen, TIMER2, 1000000); // Refresh display every 1 second
+  setup_screen(&Screen, TIMER1, 1000000); // Refresh display every 1 second
   // Initialize WiFi and MQTT
   setup_wifi(WIFI_SSID, WIFI_PASSWORD);
-  setup_mqtt(); // Add broker as parameter?
+  setup_mqtt(&Mqtt, TIMER2, 5000000); // Add broker as parameter? Attempt reconnection every 5 seconds
 }
 
 // Main loop that runs indefinitely
 void loop()
 {
-  loop_mqtt();
+  loop_mqtt(&Mqtt);
   loop_photo(&Photoresistance);
   loop_screen(&Screen, Photoresistance.val, Photoresistance.state);
 }

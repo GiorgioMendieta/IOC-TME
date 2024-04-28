@@ -35,8 +35,8 @@ void setup_photo(struct t_photoresistance *ctx, int timer, unsigned long period)
 
 void loop_photo(struct t_photoresistance *ctx)
 {
-    const char *photo_topic1 = "/esp32/photoVal";
-    const char *photo_topic2 = "/esp32/photoState";
+    const char *photo_topic1 = "esp32/photoVal";
+    const char *photo_topic2 = "esp32/photoState";
     // Wait for the period to elapse
     if (!waitFor(ctx->timer, ctx->period))
         return;
