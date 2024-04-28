@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <PubSubClient.h>
+#include <PubSubClient.h> // MQTT library
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 // --------------------------------------------------------------------------------------------------------------------
-// Definitions
-// WIFI credentials
-#define WIFI_SSID "Coloc_Apt64"
-#define WIFI_PASSWORD "Carbonara2023*"
-// MQTT parameters
-// #define MQTT_BROKER "192.168.1.133"
-#define MQTT_BROKER "test.mosquitto.org"
-#define MQTT_PORT 1883
+// Definitions and global variables
 // Pins
 #define PHOTOR_PIN 36
 // Timer
@@ -20,20 +16,23 @@
 #define TIMER2 2
 #define TIMER3 3
 #define TIMER4 4
+// OLED display parameters
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define OLED_RESET 16    // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // WiFi parameters
-const char *ssid = WIFI_SSID;
-const char *password = WIFI_PASSWORD;
-// MQTT parameters
-const char *mqtt_broker = MQTT_BROKER;
-
+const char *WIFI_SSID = "Coloc_Apt64";
+const char *WIFI_PASSWORD = "Carbonara2023*";
 WiFiClient espClient;
+// MQTT parameters
+const char *MQTT_BROKER = "test.mosquitto.org"; // TODO: Change to the IP address of your MQTT broker
+const int MQTT_PORT = 1883;
 PubSubClient client(espClient);
 
-unsigned long lastPublishTime = 0;
-#define MSG_INTERVAL 2000
 #define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
-int value = 0;
 
 // --------------------------------------------------------------------------------------------------------------------
 // Function prototypes
@@ -88,15 +87,18 @@ void setup_Photo(struct Photoresistance_s *ctx, int timer, unsigned long period)
 
 void loop_Photo(struct Photoresistance_s *ctx)
 {
+  const char *photo_topic = "/esp32/photoresistance";
   // Wait for the period to elapse
   if (!waitFor(ctx->timer, ctx->period))
     return;
 
   ctx->val = map(analogRead(ctx->pin), 4095, 0, 0, 100); // Map the value to a 0-100 range
-  snprintf(msg, MSG_BUFFER_SIZE, "Photoresistance value: %ld", ctx->val);
-  Serial.print("Message published: ");
+  snprintf(msg, MSG_BUFFER_SIZE, "Value: %ld", ctx->val);
+  Serial.print("Message published to [");
+  Serial.print(photo_topic);
+  Serial.print("]: ");
   Serial.println(msg);
-  client.publish("/esp32/photoresistance", msg);
+  client.publish(photo_topic, msg);
 }
 
 // Message publication task
@@ -127,13 +129,85 @@ void loop_Publish(struct Publish_s *ctx, const char *msg)
   client.publish(ctx->topic, ctx->msg);
 }
 
+// Built-in OLED display task
+struct Oled_s
+{
+  int timer;            // numéro de timer utilisé par WaitFor
+  unsigned int cpt;     // compteur
+  unsigned long period; // période d'incrémentation du compteur
+  int val;
+};
+
+void setup_Oled(struct Oled_s *Oled, int timer, unsigned long period)
+{
+
+  Wire.begin(4, 15); // pins SDA , SCL
+  Serial.begin(9600);
+
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
+  { // Address 0x3D for 128x64, pour notre ESP32 l'adresse est 0x3C
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;)
+      ; // Don't proceed, loop forever
+  }
+
+  Oled->timer = timer;
+  Oled->period = period;
+  Oled->cpt = 0;
+  Oled->val = 0;
+
+  // Show initial display buffer contents on the screen --
+  // the library initializes this with an Adafruit splash screen.
+  display.display();
+  delay(1000); // Pause for 1 second
+  display.clearDisplay();
+  display.setRotation(2);
+  display.setTextSize(1);
+  display.setTextColor(WHITE); // Draw white text
+  display.setCursor(0, 0);     // Start at top-left corner
+  // Display message
+  display.println("Initialising...");
+  display.display();
+}
+
+void loop_Oled(struct Oled_s *ctx, struct Photoresistance_s *pr)
+{
+  if (!waitFor(ctx->timer, ctx->period))
+    return; // sort s'il y a moins d'une période écoulée
+
+  ctx->cpt++;
+  display.clearDisplay();
+  // display.setTextColor(WHITE); // Draw white text
+  display.setCursor(0, 0); // Start at top-left corner
+
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    display.println("WiFi not connected");
+  }
+  else
+  {
+    display.print("SSID: ");
+    display.println(WIFI_SSID);
+    display.print("IP: ");
+    display.println(WiFi.localIP());
+  }
+  display.println("");
+
+  display.println("Photoresistance: ");
+  display.print(pr->val, DEC);
+  display.println("%");
+  display.display();
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 // Task declarations
 struct Photoresistance_s Photoresistance;
 struct Publish_s Publish;
+struct Oled_s Oled;
 
 // Connect to WiFi
-void setup_wifi()
+void setup_wifi(const char *ssid, const char *password)
 {
   int count = 0;
   const int max_retries = 60;
@@ -181,7 +255,7 @@ void connect_mqtt()
     if (WiFi.status() != WL_CONNECTED)
     {
       // if not connected, then first connect to wifi
-      setup_wifi();
+      setup_wifi(WIFI_SSID, WIFI_PASSWORD);
     }
 
     Serial.println("Attempting MQTT connection...");
@@ -193,7 +267,10 @@ void connect_mqtt()
       digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
 
       client.publish("esp32/photoresistance", "Connected photoresistance!");
-      client.subscribe("rpi/broadcast");
+      if (!client.subscribe("rpi/broadcast"))
+      {
+        Serial.println("Failed to subscribe to topic");
+      }
     }
     else
     {
@@ -237,13 +314,14 @@ void setup()
   Serial.begin(9600);
   // Initialize pins
   pinMode(LED_BUILTIN, OUTPUT);
-  // Initialize WiFi and MQTT
-  setup_wifi();
-  client.setServer(mqtt_broker, MQTT_PORT);
-  client.setCallback(callback);
   // Initialize tasks
   setup_Photo(&Photoresistance, TIMER0, 500000);
   // setup_Publish(&Publish, TIMER1, 2000000, "/esp32/photoresistance");
+  setup_Oled(&Oled, TIMER2, 1000000); // Refresh display every 1 second
+  // Initialize WiFi and MQTT
+  setup_wifi(WIFI_SSID, WIFI_PASSWORD);
+  client.setServer(MQTT_BROKER, MQTT_PORT);
+  client.setCallback(callback);
 }
 
 void loop()
@@ -255,17 +333,5 @@ void loop()
   }
   client.loop();
   loop_Photo(&Photoresistance);
-
-  // Publish a message every 2 seconds
-  // unsigned long now = millis();
-  // if (now - lastPublishTime > MSG_INTERVAL)
-  // {
-  //   lastPublishTime = now;
-
-  //   ++value;
-  //   snprintf(msg, MSG_BUFFER_SIZE, "Photoresistance value: %ld", Photoresistance.val);
-  //   Serial.print("Message published: ");
-  //   Serial.println(msg);
-  //   client.publish("/esp32/photoresistance", msg);
-  // }
+  loop_Oled(&Oled, &Photoresistance);
 }
