@@ -8,5 +8,6 @@
 #define PASSWORD "yA4gXPmJobazc3HXmb"
 // MQTT parameters
 #define MQTT_BROKER "192.168.1.95"
+#define MQTT_PORT 1883
 
 #endif // WIFI_CREDENTIALS_H

@@ -1,39 +1,47 @@
-/*
- Basic MQTT example with Authentication
-
-  - connects to an MQTT server, providing username and password
-  - publishes "hello world" to the topic "/outTopic"
-  - subscribes to the topic "/inTopic"
-*/
-
-#include <SPI.h>
+#include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include "WiFiCredentials.h" // File containing WiFi credentials
+// #include "WiFiCredentials.h" // File containing WiFi credentials
 
+// --------------------------------------------------------------------------------------------------------------------
+// WIFI credentials
+#define WIFI_SSID "Coloc_Apt64"
+#define WIFI_PASSWORD "Carbonara2023*"
+// MQTT parameters
+// #define MQTT_BROKER "192.168.1.133"
+#define MQTT_BROKER "test.mosquitto.org"
+#define MQTT_PORT 1883
 // WiFi parameters
-const char *ssid = SSID;
-const char *password = PASSWORD;
+const char *ssid = WIFI_SSID;
+const char *password = WIFI_PASSWORD;
 // MQTT parameters
 const char *mqtt_broker = MQTT_BROKER;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-unsigned long timeSinceLastMsg = 0;
+unsigned long lastPublishTime = 0;
 #define MSG_INTERVAL 2000
 #define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
 
+// Function prototypes
+void setup_wifi();
+void connect_mqtt();
+void callback(char *topic, byte *payload, unsigned int length);
+
 // Connect to WiFi
-void wifi_setup()
+void setup_wifi()
 {
+  int count = 0;
+  const int max_retries = 60;
   // Small delay to fix some issues with WiFi stability
   delay(10);
 
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.print("Connecting to SSID: \"");
+  Serial.print(ssid);
+  Serial.println("\"");
   // Set WiFi mode to station (client)
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -43,10 +51,17 @@ void wifi_setup()
   {
     Serial.print(".");
     delay(1000);
+    count++;
+    if (count >= max_retries)
+    {
+      Serial.println("Connection failed");
+      ESP.restart(); // Reset the ESP after 60 seconds
+      return;
+    }
   }
 
   Serial.println("");
-  Serial.println("WiFi connected");
+  Serial.println("WiFi connected!");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
@@ -58,8 +73,16 @@ void connect_mqtt()
   // Wait for connection
   while (!client.connected())
   {
-    Serial.print("Device disconnected from MQTT server. Trying to reconnect...");
-    String clientId = "arduinoClient";
+    const char *clientId = "ESP32Client-1";
+
+    // First check WiFi connection
+    if (WiFi.status() != WL_CONNECTED)
+    {
+      // if not connected, then first connect to wifi
+      setup_wifi();
+    }
+
+    Serial.print("Attempting MQTT connection...");
 
     // Attempt connection
     if (client.connect(clientId))
@@ -67,14 +90,13 @@ void connect_mqtt()
       Serial.println("Connected to MQTT server!");
       // Publish a message to the topic "/outTopic"
       Serial.println("publish");
-      client.publish("/outTopic", "salut ma grosse poule reconnectée");
-      // Subscribe to the topic "/inTopic"
-      client.subscribe("/inTopic");
+
+      client.publish("esp32/sensor1", "Sensor 1 connecté!");
+      client.subscribe("rpi/broadcast");
     }
     else
     {
-      Serial.println("Connection to MQTT server failed");
-      Serial.print("failed, rc=");
+      Serial.print("Connection to MQTT server failed, rc=");
       Serial.print(client.state());
       Serial.println(" trying again in 5 seconds");
       // Wait 5 seconds before retrying
@@ -83,28 +105,37 @@ void connect_mqtt()
   }
 }
 
-// Function called when a message arrives
+// Function called when a message arrives on any subscribed topic
 void callback(char *topic, byte *payload, unsigned int length)
 {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
+  String messageTemp;
+
   for (int i = 0; i < length; i++)
   {
     Serial.print((char)payload[i]);
+    messageTemp += (char)payload[i];
   }
   Serial.println();
 
-  // Do something according to the message
+  // Do something according to the message and topic
+  // Check if a message is received on the topic "rpi/broadcast"
+  if (String(topic) == "rpi/broadcast")
+  {
+    Serial.println("Broadcast message received");
+    // Do something with the message
+  }
 }
 
 // Run setup once
 void setup()
 {
   Serial.begin(9600);
-  wifi_setup();
+  setup_wifi();
   Serial.println("Connecting to MQTT broker...");
-  client.setServer(mqtt_broker, 1883);
+  client.setServer(mqtt_broker, MQTT_PORT);
   client.setCallback(callback);
 }
 
@@ -119,13 +150,14 @@ void loop()
 
   // Publish a message every 2 seconds
   unsigned long now = millis();
-  if (now - lastMsg > MSG_INTERVAL)
+  if (now - lastPublishTime > MSG_INTERVAL)
   {
-    lastMsg = now;
+    lastPublishTime = now;
+
     ++value;
     snprintf(msg, MSG_BUFFER_SIZE, "salut ma grosse poule #%ld", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
-    client.publish("/outTopic", msg);
+    client.publish("/esp32/sensor1", msg);
   }
 }
