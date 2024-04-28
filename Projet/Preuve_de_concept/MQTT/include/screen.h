@@ -58,7 +58,7 @@ void setup_screen(struct t_screen *Oled, int timer, unsigned long period)
     display.display();
 }
 
-void loop_screen(struct t_screen *ctx, int val)
+void loop_screen(struct t_screen *ctx, int pr_val, int pr_state)
 {
     if (!waitFor(ctx->timer, ctx->period))
         return; // sort s'il y a moins d'une période écoulée
@@ -79,8 +79,13 @@ void loop_screen(struct t_screen *ctx, int val)
     }
     display.println("");
 
-    display.print("Photoresistance: ");
-    display.print(val, DEC);
+    display.println("Photoresistance: ");
+    display.print("val: ");
+    display.print(pr_val, DEC);
     display.println("%");
+
+    display.print("state: ");
+    display.println(pr_state, DEC);
+
     display.display();
 }

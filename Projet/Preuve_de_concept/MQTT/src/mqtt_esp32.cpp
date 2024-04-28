@@ -34,5 +34,5 @@ void loop()
 {
   loop_mqtt();
   loop_photo(&Photoresistance);
-  loop_screen(&Screen, Photoresistance.val);
+  loop_screen(&Screen, Photoresistance.val, Photoresistance.state);
 }
