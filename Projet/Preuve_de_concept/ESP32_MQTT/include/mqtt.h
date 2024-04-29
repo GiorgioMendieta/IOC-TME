@@ -23,8 +23,29 @@ struct t_mqtt
     int state; // 1 = connected, 0 = disconnected
 };
 
-// Function prototypes
-void callback(char *topic, byte *payload, unsigned int length);
+// Function called when a message arrives on any subscribed topic
+void callback(char *topic, byte *payload, unsigned int length)
+{
+    Serial.print("Message arrived [");
+    Serial.print(topic);
+    Serial.print("] ");
+    String messageTemp;
+
+    for (int i = 0; i < length; i++)
+    {
+        Serial.print((char)payload[i]);
+        messageTemp += (char)payload[i];
+    }
+    Serial.println();
+
+    // Do something according to the message and topic
+    // Check if a message is received on the topic "rpi/broadcast"
+    if (String(topic) == "rpi/broadcast")
+    {
+        Serial.println("Broadcast message received");
+        // Do something with the message
+    }
+}
 
 void setup_mqtt(struct t_mqtt *ctx, int timer, unsigned long period)
 {
@@ -40,14 +61,6 @@ void setup_mqtt(struct t_mqtt *ctx, int timer, unsigned long period)
 boolean connect_mqtt()
 {
     digitalWrite(LED_BUILTIN, LOW);
-
-    // First check WiFi connection
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        // if not connected, then first connect to wifi
-        setup_wifi(WIFI_SSID, WIFI_PASSWORD);
-    }
-
     Serial.println("Attempting MQTT connection...");
 
     // Attempt connection
@@ -73,30 +86,6 @@ boolean connect_mqtt()
     return client.connected();
 }
 
-// Function called when a message arrives on any subscribed topic
-void callback(char *topic, byte *payload, unsigned int length)
-{
-    Serial.print("Message arrived [");
-    Serial.print(topic);
-    Serial.print("] ");
-    String messageTemp;
-
-    for (int i = 0; i < length; i++)
-    {
-        Serial.print((char)payload[i]);
-        messageTemp += (char)payload[i];
-    }
-    Serial.println();
-
-    // Do something according to the message and topic
-    // Check if a message is received on the topic "rpi/broadcast"
-    if (String(topic) == "rpi/broadcast")
-    {
-        Serial.println("Broadcast message received");
-        // Do something with the message
-    }
-}
-
 void loop_mqtt(struct t_mqtt *ctx, t_mailbox *mb)
 {
     // Check if the client is connected to the server
@@ -104,13 +93,18 @@ void loop_mqtt(struct t_mqtt *ctx, t_mailbox *mb)
     {
         mb->val = 0;
         // Wait for the period to elapse
-        // TODO: Verify if this is the correct way to wait for the period
         if (!waitFor(ctx->timer, ctx->period))
         {
             return;
         }
         else
         {
+            // First check WiFi connection
+            if (WiFi.status() != WL_CONNECTED)
+            {
+                // if not connected, then first connect to wifi
+                reconnect_wifi(WIFI_SSID, WIFI_PASSWORD);
+            }
             connect_mqtt();
         }
     }

@@ -33,3 +33,15 @@ void setup_wifi(const char *ssid, const char *password)
         }
     }
 }
+
+void reconnect_wifi(const char *ssid, const char *password)
+{
+    // Small delay to fix some issues with WiFi stability
+    delay(10);
+
+    Serial.print("Connecting to SSID: \"");
+    Serial.print(ssid);
+    Serial.println("\"");
+
+    WiFi.begin(ssid, password);
+}

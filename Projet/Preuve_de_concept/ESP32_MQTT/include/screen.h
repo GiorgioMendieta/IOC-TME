@@ -10,6 +10,9 @@
 #include "utils.h"
 #include "intercommunication.h"
 
+extern struct t_mailbox mb_mqtt;
+extern struct t_mailbox mb_photor;
+
 // OLED display parameters
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -59,7 +62,8 @@ void setup_screen(struct t_screen *Oled, int timer, unsigned long period)
     display.display();
 }
 
-void loop_screen(struct t_screen *ctx, t_mailbox *mb_pr, t_mailbox *mb_mqtt)
+// void loop_screen(struct t_screen *ctx, t_mailbox *mb_pr, t_mailbox *mb_mqtt)
+void loop_screen(struct t_screen *ctx)
 {
     if (!waitFor(ctx->timer, ctx->period))
         return; // sort s'il y a moins d'une période écoulée
@@ -80,7 +84,7 @@ void loop_screen(struct t_screen *ctx, t_mailbox *mb_pr, t_mailbox *mb_mqtt)
         display.println(WiFi.localIP());
     }
 
-    if (mb_mqtt->val == 1)
+    if (mb_mqtt.val == 1)
     {
         display.println("MQTT: Connected");
     }
@@ -92,7 +96,7 @@ void loop_screen(struct t_screen *ctx, t_mailbox *mb_pr, t_mailbox *mb_mqtt)
 
     display.println("Photoresistance: ");
     display.print("val: ");
-    display.print(mb_pr->val, DEC);
+    display.print(mb_photor.val, DEC);
     display.println("%");
 
     display.display();

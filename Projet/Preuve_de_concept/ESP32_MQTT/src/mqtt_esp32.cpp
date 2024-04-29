@@ -17,7 +17,6 @@ struct t_screen Screen;
 struct t_mqtt Mqtt;
 // Mailboxes
 struct t_mailbox mb_mqtt = {.state = EMPTY};
-// struct t_mailbox mb_wifi = {.state = EMPTY};
 struct t_mailbox mb_photor = {.state = EMPTY};
 
 // Run setup once
@@ -42,5 +41,5 @@ void loop()
 {
   loop_mqtt(&Mqtt, &mb_mqtt);
   loop_photo(&Photoresistance, &mb_photor);
-  loop_screen(&Screen, &mb_photor, &mb_mqtt);
+  loop_screen(&Screen);
 }
