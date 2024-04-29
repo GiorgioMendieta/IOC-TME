@@ -5,7 +5,7 @@
 #include "mqtt.h"
 #include "utils.h"
 
-#define PHOTOR_PIN 36
+#define PHOTOR_PIN 36 // Photoresistance pin
 
 // Photo resistance task definition
 enum photo_levels
@@ -35,8 +35,6 @@ void setup_photo(struct t_photoresistance *ctx, int timer, unsigned long period)
 
 void loop_photo(struct t_photoresistance *ctx)
 {
-    const char *photo_topic1 = "esp32/photoVal";
-    const char *photo_topic2 = "esp32/photoState";
     // Wait for the period to elapse
     if (!waitFor(ctx->timer, ctx->period))
         return;
@@ -55,17 +53,13 @@ void loop_photo(struct t_photoresistance *ctx)
         ctx->state = BRIGHT;
     }
 
-    snprintf(msg, MSG_BUFFER_SIZE, "Value: %ld", ctx->val);
-    // Serial.print("Message published to [");
-    // Serial.print(photo_topic1);
-    // Serial.print("]: ");
-    // Serial.println(msg);
-    client.publish(photo_topic1, msg);
-
-    snprintf(msg, MSG_BUFFER_SIZE, "State: %ld", ctx->state);
-    Serial.print("Message published to [");
-    Serial.print(photo_topic2);
-    Serial.print("]: ");
+    snprintf(msg, MSG_BUFFER_SIZE, "%ld", ctx->val);
+    Serial.print("Published to [esp32/photoVal]: ");
     Serial.println(msg);
-    client.publish(photo_topic2, msg);
+    client.publish("esp32/photoVal", msg);
+
+    snprintf(msg, MSG_BUFFER_SIZE, "%ld", ctx->state);
+    Serial.print("Published to [esp32/photoState]: ");
+    Serial.println(msg);
+    client.publish("esp32/photoState", msg);
 }
