@@ -5,10 +5,10 @@
 #include "photoresistance.h"
 #include "mqtt.h"
 #include "internet.h"
+#include "pushbutton.h"
 
 // --------------------------------------------------------------------------------------------------------------------
 // Definitions and global variables
-
 // --------------------------------------------------------------------------------------------------------------------
 // Task declarations
 struct t_photoresistance Photoresistance;
@@ -22,6 +22,8 @@ void setup()
   Serial.begin(9600);
   // Initialize ESP32 pins
   pinMode(LED_BUILTIN, OUTPUT);
+  // Initialize push button
+  setup_pushbutton();
   // Initialize tasks
   setup_photo(&Photoresistance, TIMER0, 500000);
   setup_screen(&Screen, TIMER1, 1000000); // Refresh display every 1 second
