@@ -1,6 +1,9 @@
-# MQTT (Client ESP32)
+# Notes
 
-Board: ESP32 (TTGO-Lora-OLED V1)
+## MQTT (Client ESP32)
+
+**Board**: ESP32 (TTGO-Lora-OLED V1)
+**Configuration**: Allow anonymous (pas de login)
 
 Multi tasking approach using timers and structures
 Photoresistance publish every 0.5 seconds
@@ -10,3 +13,31 @@ Then i used a mix of the multi tasking as seen on TP and my naive approach, howe
 Finally I settled for the multi tasking approach and publish a message using the task
 Then I implemented the OLED screen to show the SSID, IP address and Photoresistance value
 I refactored the code by making it modular using header files
+
+I have some difficulties with the MQTT broker on my Macbook since I still haven't flashed the RPI
+
+## MQTT (Raspberry Pi)
+
+I flashed the RPI using the RPI imager
+I then used SSH to configure the RPI with my Macbook
+I noticed i could ssh with the RPI IP address or using `raspberrypi.local`
+Then i installed `mosquitto`and `mosquitto-clients` with `apt get`
+I started the service with `systemctl start mosquitto.service`
+Then I verified the hostname with `hostname` and `hostname -I`
+
+I configured the `mosquitto.conf` file by adding the following options:
+
+```
+allow_anonymous true
+listener 1883
+````
+
+Then I reset the RPI, and the MQTT broker worked correctly!!!
+
+I tested this using an app on my phone called MyMQTT
+
+## HTTP Server
+
+**Board**: Raspberry Pi 3
+**OS**: RPI OS 64-bit
+**Framework**: Flask
