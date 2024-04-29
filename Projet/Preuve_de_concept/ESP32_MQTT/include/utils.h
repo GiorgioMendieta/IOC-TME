@@ -10,10 +10,6 @@
 #define TIMER3 3
 #define TIMER4 4
 
-// Used for MQTT messages
-#define MSG_BUFFER_SIZE (50)
-char msg[MSG_BUFFER_SIZE];
-
 // --------------------------------------------------------------------------------------------------------------------
 // unsigned int waitFor(timer, period)
 // Timer pour taches périodiques

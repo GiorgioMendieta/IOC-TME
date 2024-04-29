@@ -7,6 +7,10 @@
 #include "credentials.h"
 #include "internet.h"
 
+// Used for MQTT messages (payload)
+#define MSG_BUFFER_SIZE (50)
+char msg[MSG_BUFFER_SIZE];
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 const char *clientId = "ESP32Client-1";
