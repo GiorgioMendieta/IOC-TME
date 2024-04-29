@@ -19,6 +19,9 @@ CLIENT_ID = "RPIClient-1"
 s2fName = '/tmp/s2f_TM'
 s2f = open(s2fName,'w+')
 
+# TODO: Add a way to connect to the sqlite3 database
+
+
 # Version 2 of the callback API since the version 1 is deprecated
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 #client = mqtt.Client(client_id=CLIENT_ID, clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
@@ -42,4 +45,4 @@ while(1):
 		# Publish message form fifo
 		client.publish("rpi/broadcast", res)
 
-#client.loop_forever() # pour attendre les messages
+client.loop_forever() # pour attendre les messages
