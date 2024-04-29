@@ -8,6 +8,7 @@
 #include <WiFi.h>
 
 #include "utils.h"
+#include "intercommunication.h"
 
 // OLED display parameters
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -58,7 +59,7 @@ void setup_screen(struct t_screen *Oled, int timer, unsigned long period)
     display.display();
 }
 
-void loop_screen(struct t_screen *ctx, int pr_val, int pr_state)
+void loop_screen(struct t_screen *ctx, t_mailbox *mb_pr, t_mailbox *mb_mqtt)
 {
     if (!waitFor(ctx->timer, ctx->period))
         return; // sort s'il y a moins d'une période écoulée
@@ -68,24 +69,31 @@ void loop_screen(struct t_screen *ctx, int pr_val, int pr_state)
     // display.setTextColor(WHITE); // Draw white text
     display.setCursor(0, 0); // Start at top-left corner
 
+    // TODO: Switch to mailbox and remove wifi dependency
     if (WiFi.status() != WL_CONNECTED)
     {
-        display.println("WiFi not connected");
+        display.println("IP:   Disconnected");
     }
     else
     {
         display.print("IP: ");
         display.println(WiFi.localIP());
     }
+
+    if (mb_mqtt->val == 1)
+    {
+        display.println("MQTT: Connected");
+    }
+    else
+    {
+        display.println("MQTT: Disconnected");
+    }
     display.println("");
 
     display.println("Photoresistance: ");
     display.print("val: ");
-    display.print(pr_val, DEC);
+    display.print(mb_pr->val, DEC);
     display.println("%");
-
-    display.print("state: ");
-    display.println(pr_state, DEC);
 
     display.display();
 }

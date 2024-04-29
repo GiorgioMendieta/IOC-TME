@@ -6,6 +6,7 @@
 #include "mqtt.h"
 #include "internet.h"
 #include "pushbutton.h"
+#include "intercommunication.h"
 
 // --------------------------------------------------------------------------------------------------------------------
 // Definitions and global variables
@@ -14,6 +15,10 @@
 struct t_photoresistance Photoresistance;
 struct t_screen Screen;
 struct t_mqtt Mqtt;
+// Mailboxes
+struct t_mailbox mb_mqtt = {.state = EMPTY};
+// struct t_mailbox mb_wifi = {.state = EMPTY};
+struct t_mailbox mb_photor = {.state = EMPTY};
 
 // Run setup once
 void setup()
@@ -35,7 +40,7 @@ void setup()
 // Main loop that runs indefinitely
 void loop()
 {
-  loop_mqtt(&Mqtt);
-  loop_photo(&Photoresistance);
-  loop_screen(&Screen, Photoresistance.val, Photoresistance.state);
+  loop_mqtt(&Mqtt, &mb_mqtt);
+  loop_photo(&Photoresistance, &mb_photor);
+  loop_screen(&Screen, &mb_photor, &mb_mqtt);
 }

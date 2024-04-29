@@ -6,6 +6,7 @@
 
 #include "credentials.h"
 #include "internet.h"
+#include "intercommunication.h"
 
 // Used for MQTT messages (payload)
 #define MSG_BUFFER_SIZE (50)
@@ -19,6 +20,7 @@ struct t_mqtt
 {
     int timer;
     unsigned long period;
+    int state; // 1 = connected, 0 = disconnected
 };
 
 // Function prototypes
@@ -28,6 +30,7 @@ void setup_mqtt(struct t_mqtt *ctx, int timer, unsigned long period)
 {
     ctx->timer = timer;
     ctx->period = period;
+    ctx->state = 0;
 
     client.setServer(MQTT_BROKER, MQTT_PORT);
     client.setCallback(callback);
@@ -94,18 +97,26 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
 }
 
-void loop_mqtt(struct t_mqtt *ctx)
+void loop_mqtt(struct t_mqtt *ctx, t_mailbox *mb)
 {
     // Check if the client is connected to the server
     if (!client.connected())
     {
+        mb->val = 0;
         // Wait for the period to elapse
         // TODO: Verify if this is the correct way to wait for the period
         if (!waitFor(ctx->timer, ctx->period))
         {
             return;
         }
-        connect_mqtt();
+        else
+        {
+            connect_mqtt();
+        }
+    }
+    else
+    {
+        mb->val = 1;
     }
     client.loop();
 }
