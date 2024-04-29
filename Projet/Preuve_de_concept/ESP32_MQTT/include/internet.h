@@ -39,9 +39,8 @@ void reconnect_wifi(const char *ssid, const char *password)
     // Small delay to fix some issues with WiFi stability
     delay(10);
 
-    Serial.print("Connecting to SSID: \"");
-    Serial.print(ssid);
-    Serial.println("\"");
+    Serial.print("Connecting to SSID: ");
+    Serial.println(ssid);
 
     WiFi.begin(ssid, password);
 }

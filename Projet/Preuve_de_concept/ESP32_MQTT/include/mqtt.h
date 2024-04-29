@@ -44,6 +44,16 @@ void callback(char *topic, byte *payload, unsigned int length)
     {
         Serial.println("Broadcast message received");
         // Do something with the message
+        if (messageTemp == "ON")
+        {
+            Serial.println("Turning ON LED");
+            digitalWrite(LED_BUILTIN, HIGH);
+        }
+        else if (messageTemp == "OFF")
+        {
+            Serial.println("Turning OFF LED");
+            digitalWrite(LED_BUILTIN, LOW);
+        }
     }
 }
 
@@ -60,14 +70,12 @@ void setup_mqtt(struct t_mqtt *ctx, int timer, unsigned long period)
 // Blocking function to connect to MQTT server
 boolean connect_mqtt()
 {
-    digitalWrite(LED_BUILTIN, LOW);
     Serial.println("Attempting MQTT connection...");
 
     // Attempt connection
     if (client.connect(clientId))
     {
         Serial.println("Connected to MQTT server!");
-        digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
 
         if (!client.subscribe("rpi/broadcast"))
         {

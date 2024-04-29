@@ -14,7 +14,7 @@
 // ISR for push button
 void IRAM_ATTR isr_pb()
 {
-    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    client.publish("esp32/pushbutton", "1");
 }
 
 void setup_pushbutton()
