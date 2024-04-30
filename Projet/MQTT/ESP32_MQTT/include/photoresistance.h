@@ -5,8 +5,6 @@
 #include "mqtt.h"
 #include "utils.h"
 
-#define PHOTOR_PIN 36 // Photoresistance pin
-
 // Photo resistance task definition
 struct t_photoresistance
 {
@@ -16,11 +14,11 @@ struct t_photoresistance
     int val;
 };
 
-void setup_photo(struct t_photoresistance *ctx, int timer, unsigned long period)
+void setup_photo(struct t_photoresistance *ctx, int timer, unsigned long period, int pin)
 {
     ctx->timer = timer;
     ctx->period = period;
-    ctx->pin = PHOTOR_PIN;
+    ctx->pin = pin;
     ctx->val = 0;
 }
 

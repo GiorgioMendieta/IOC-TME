@@ -82,7 +82,7 @@ boolean connect_mqtt()
             Serial.println("Failed to subscribe to topic");
         }
 
-        client.publish("esp32/photoresistance", "Connected photoresistance!");
+        // TODO: Publish a message to the topic "esp32/broadcast" ?
     }
     else
     {
@@ -96,10 +96,11 @@ boolean connect_mqtt()
 
 void loop_mqtt(struct t_mqtt *ctx, t_mailbox *mb)
 {
+    mb->val = 1; // Assume the client is connected
     // Check if the client is connected to the server
     if (!client.connected())
     {
-        mb->val = 0;
+        mb->val = 0; // The client is disconnected
         // Wait for the period to elapse
         if (!waitFor(ctx->timer, ctx->period))
         {
@@ -108,6 +109,7 @@ void loop_mqtt(struct t_mqtt *ctx, t_mailbox *mb)
         else
         {
             // First check WiFi connection
+            // TODO: Add mailbox to check if WiFi is connected to speed up the process
             if (WiFi.status() != WL_CONNECTED)
             {
                 // if not connected, then first connect to wifi
@@ -116,9 +118,6 @@ void loop_mqtt(struct t_mqtt *ctx, t_mailbox *mb)
             connect_mqtt();
         }
     }
-    else
-    {
-        mb->val = 1;
-    }
+
     client.loop();
 }

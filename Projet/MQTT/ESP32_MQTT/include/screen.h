@@ -10,7 +10,7 @@
 #include "utils.h"
 #include "intercommunication.h"
 
-extern struct t_mailbox mb_mqtt;
+extern struct t_mailbox mb_conn;
 extern struct t_mailbox mb_photor;
 
 // OLED display parameters
@@ -33,7 +33,6 @@ void setup_screen(struct t_screen *Oled, int timer, unsigned long period)
 {
 
     Wire.begin(4, 15); // pins SDA , SCL
-    Serial.begin(9600);
 
     // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
     if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
@@ -84,7 +83,7 @@ void loop_screen(struct t_screen *ctx)
         display.println(WiFi.localIP());
     }
 
-    if (mb_mqtt.val == 1)
+    if (mb_conn.val == 1)
     {
         display.println("MQTT: Connected");
     }

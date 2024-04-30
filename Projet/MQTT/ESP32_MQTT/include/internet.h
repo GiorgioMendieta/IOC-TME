@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include "credentials.h"
 
 // Connect to WiFi
 void setup_wifi(const char *ssid, const char *password)
@@ -32,6 +31,7 @@ void setup_wifi(const char *ssid, const char *password)
             return;
         }
     }
+    Serial.println("Connected to WiFi");
 }
 
 void reconnect_wifi(const char *ssid, const char *password)
@@ -39,7 +39,7 @@ void reconnect_wifi(const char *ssid, const char *password)
     // Small delay to fix some issues with WiFi stability
     delay(10);
 
-    Serial.print("Connecting to SSID: ");
+    Serial.print("Reconnecting to SSID: ");
     Serial.println(ssid);
 
     WiFi.begin(ssid, password);
