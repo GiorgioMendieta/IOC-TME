@@ -46,7 +46,6 @@ if client.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
 
 # Subscribe to topic after connection
 client.subscribe("esp32/photoVal")
-client.subscribe("esp32/photoState")
 
 # client.loop_start()
 
