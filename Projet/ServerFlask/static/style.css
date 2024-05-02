@@ -1,0 +1,675 @@
+:root {
+    font-size: 16px;
+    --header-height: 5em;
+    --menu-button-w: 5em;
+    --tile-size: 2em;
+
+    --key-margin: 0.45em;
+
+    --color-bg: #121212;
+    --color-border: #3a3a3c;
+    --color-font: white;
+
+    --key-bg: #818384;
+    --input-bg: #818384;
+
+    --alert-bg: white;
+    --alert-color-font: black;
+
+    /* Tile colors */
+    --tile-absent: #393a3c;
+    --tile-active: #565758;
+    --tile-wrong: #3a3a3c;
+    --tile-present: #b59f3b;
+    --tile-correct: #538d4e;
+
+    /* Toggle switch */
+    --toggle-height: 2em;
+    --toggle-width: 4em;
+
+    /* Buttons */
+    --button-bg: #121212;
+
+    --transition-time: 200ms;
+    --animation-time: 200ms;
+}
+
+body[theme="light"] {
+    --color-bg: white;
+    --color-border: #888a8d;
+    --color-font: black;
+
+    --key-bg: #d4d6da;
+
+    --alert-bg: #121212;
+    --alert-color-font: white;
+
+    --tile-absent: #d4d6da;
+    --tile-active: #888a8d;
+    --tile-wrong: #787c7e;
+}
+
+/* Selects ALL elements */
+* {
+    color: var(--color-font);
+    /* Smoothly transition between dark/light modes */
+    transition: background-color var(--transition-time) ease-in,
+        color var(--transition-time) ease-in;
+}
+
+a {
+    text-decoration: none;
+}
+
+hr {
+    width: 100%;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background-color: var(--color-bg);
+    /* Variable font size (Responsive) */
+    /* Min size,  Default, Max */
+    font-size: clamp(0.5rem, 2vh, 2.5rem);
+    height: 100%;
+}
+
+button:disabled {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Header ---------- */
+.header-container {
+    position: sticky;
+    top: 0px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--color-bg);
+    border-bottom: solid 2px var(--color-border);
+    height: var(--header-height);
+    width: 100%;
+    justify-content: space-between;
+}
+
+.title-container {
+    font-family: "Silkscreen", cursive;
+    text-align: center;
+    position: absolute;
+    left: 50vw;
+    transform: translateX(-50%);
+}
+
+.menu-button.menu-header {
+    font-weight: bold;
+    min-width: 0;
+    margin: 1em;
+}
+
+.menu-button.green {
+    color: white;
+    background-color: var(--tile-correct);
+}
+
+.menu-button.red {
+    color: white;
+    background-color: #e33d26;
+}
+
+/* ---------- Main container for the game ---------- */
+.game-container {
+    height: calc(100% - var(--header-height));
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* justify-content: space-between; */
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    /* No vertical margin, fill horizontal margin */
+    margin: 0 auto;
+}
+
+/* ---------------------- Keyboard ---------------------- */
+.keyboard-container {
+    font-size: medium;
+    margin: var(--key-margin);
+    /* Use all the width available */
+    width: inherit;
+}
+
+.keyboard-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: var(--key-margin);
+}
+
+.key {
+    font-size: inherit;
+    font-weight: bold;
+    background-color: var(--key-bg);
+    display: flex;
+    /* Unit size */
+    flex: 1;
+    height: 4em;
+    border: none;
+    padding: 0%;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    border-radius: 0.25em;
+    margin-right: var(--key-margin);
+    cursor: pointer;
+    /* Prevent the user from highlighting the button text */
+    user-select: none;
+    /* Remove ugly blue highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+
+    transition: transform var(--transition-time) ease,
+        background-color var(--transition-time) ease;
+}
+
+.key.large {
+    /* Large keys are 1.5 width */
+    flex: 1.5;
+    /* Smaller font size so letters can fit */
+    font-size: 0.8em;
+    height: inherit;
+}
+
+.spacer {
+    /* Spacers take half a key width */
+    flex: 0.5;
+}
+
+/* Wrong key */
+.key[data-state="wrong"] {
+    background-color: var(--tile-wrong);
+    color: white;
+}
+
+/* Present key */
+.key[data-state="present"] {
+    background-color: var(--tile-present);
+    color: white;
+}
+
+/* Correct key */
+.key[data-state="correct"] {
+    background-color: var(--tile-correct);
+    color: white;
+}
+
+/* Increase the key's lightness when it's hovered */
+.key:hover,
+.key:focus {
+    filter: brightness(115%);
+    transform: scale(1.25);
+    box-shadow: 0 0 10px 3px rgb(0 0 0 / 20%);
+}
+
+/* Remove last key margin */
+.key:last-of-type {
+    margin-right: 0;
+}
+
+/* ---------------------- Game board ---------------------- */
+.guess-grid-container {
+    font-family: "Silkscreen", cursive;
+
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    margin: 1em;
+}
+
+.guess-grid {
+    display: grid;
+    grid-template-rows: repeat(var(--rows, 6), 1fr);
+    /* Gap between rows */
+    gap: 0.25em;
+    width: 100%;
+    margin: auto;
+}
+
+.guess-row {
+    display: grid;
+    /* column width */
+    grid-template-columns: repeat(var(--letters, 5), 1fr);
+    /* Gap between columns */
+    gap: inherit;
+}
+
+.guess-row.shake {
+    animation: shake 250ms ease-in-out;
+}
+
+/* Need to add keyframes manually */
+@keyframes shake {
+    10% {
+        transform: translateX(-3%);
+    }
+
+    30% {
+        transform: translateX(3%);
+    }
+
+    50% {
+        transform: translateX(-6%);
+    }
+
+    70% {
+        transform: translateX(6%);
+    }
+
+    90% {
+        transform: translateX(-3%);
+    }
+
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+.tile {
+    font-size: var(--tile-size);
+    font-weight: bold;
+    border: 0.075em solid var(--tile-absent);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    user-select: none;
+    color: white;
+    height: var(--tile-size);
+    width: var(--tile-size);
+    /* Flip animation */
+    transition: transform 250ms linear;
+}
+
+/* Active tile (Has data in it) */
+.tile[data-state="active"] {
+    color: var(--color-font);
+    border-color: var(--tile-active);
+}
+
+/* Wrong tile */
+.tile[data-state="wrong"] {
+    border: 0.075em solid var(--tile-wrong);
+    background-color: var(--tile-wrong);
+}
+
+/* Present tile */
+.tile[data-state="present"] {
+    border: 0.075em solid var(--tile-present);
+    background-color: var(--tile-present);
+}
+
+/* Correct tile */
+.tile[data-state="correct"] {
+    border: 0.075em solid var(--tile-correct);
+    background-color: var(--tile-correct);
+}
+
+.tile.flip {
+    transform: rotateX(90deg);
+}
+
+.tile.pop {
+    animation: pop var(--animation-time) linear;
+}
+
+@keyframes pop {
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.tile.jump {
+    animation: jump 500ms linear;
+}
+
+@keyframes jump {
+    20% {
+        transform: translateY(-50%);
+    }
+
+    40% {
+        transform: translateY(5%);
+    }
+
+    60% {
+        transform: translateY(-25%);
+    }
+
+    80% {
+        transform: translateY(2.5%);
+    }
+
+    90% {
+        transform: translateY(-5%);
+    }
+
+    100% {
+        transform: translateY(0%);
+    }
+}
+
+/* ---------------------- Toast notifications ---------------------- */
+.alert-container {
+    position: fixed;
+    /* 10% of viewport height */
+    top: 10vh;
+    /* 50% of viewport width */
+    /* left: 50vh; */
+    /* transform: translateX(-50%); */
+    /* Always place alert on top */
+    z-index: 2;
+    /* Display alerts in flexbox vertically */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.flash,
+.alert {
+    background-color: var(--alert-bg);
+    color: var(--alert-color-font);
+    font-weight: bold;
+    text-align: center;
+    padding: 0.75em;
+    border-radius: 0.25em;
+    /* Prevent selecting the alert */
+    pointer-events: none;
+    /* Used for hiding alert */
+    opacity: 100%;
+    transition: opacity 500ms ease-in-out;
+    margin-bottom: 0.5em;
+}
+
+.flash.error,
+.alert.error {
+    background-color: #e33d26;
+    color: white;
+}
+
+.flash.hide,
+.alert.hide {
+    opacity: 0%;
+}
+
+/* ---------------------- Toggle switch ---------------------- */
+/* Hide checkbox */
+input[type="checkbox"] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+}
+
+label.toggle {
+    cursor: pointer;
+    text-indent: -9999px;
+    width: var(--toggle-width);
+    height: var(--toggle-height);
+    background: var(--tile-wrong);
+    display: block;
+    border: 2px solid var(--color-border);
+    border-radius: var(--toggle-height);
+    position: relative;
+}
+
+label.toggle:hover {
+    filter: brightness(130%);
+}
+
+label.toggle:after {
+    content: "";
+    position: absolute;
+    /* top = 5px - border(2px); */
+    top: calc(var(--toggle-height) * 0.05 - 2px);
+    /* left: 5px; */
+    left: calc(var(--toggle-height) * 0.05);
+    /* width: 90px; */
+    width: calc(var(--toggle-height) * 0.9);
+    /* height: 90px; */
+    height: calc(var(--toggle-height) * 0.9);
+    background: white;
+    /* border-radius: 90px; */
+    border: 2px solid var(--color-border);
+
+    border-radius: calc(var(--toggle-height) * 0.9);
+    transition: 0.3s;
+}
+
+input:checked + label.toggle {
+    background: var(--tile-correct);
+}
+
+input:checked + label.toggle:after {
+    /* left: calc(100% - 5px); */
+    left: calc(100% - (var(--toggle-height) * 0.05));
+    transform: translateX(-100%);
+}
+
+label.toggle:active:after {
+    /* width: 130px; */
+    width: calc(var(--toggle-height) * 1.3);
+}
+
+/* ---------- Radio buttons ---------- */
+.radio-container input {
+    appearance: none;
+    cursor: pointer;
+    transition: all 100ms linear;
+}
+
+.radio-container input:checked {
+    background-color: var(--tile-correct);
+}
+
+.radio-container input:before {
+    content: attr(label);
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+    margin-top: var(--header-height);
+    border-right: solid 2px var(--color-border);
+    border-top: solid 2px var(--color-border);
+    align-items: center;
+    position: fixed;
+    top: 0px;
+    height: 100%;
+    width: clamp(15em, 20vw, 30em);
+    left: 0%;
+    z-index: 1;
+    background-color: var(--color-bg);
+}
+
+.sidebar.show {
+    animation: slidein var(--animation-time) linear;
+}
+
+@keyframes slidein {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+}
+
+.sidebar.hide {
+    animation: slideout var(--animation-time) linear;
+}
+
+@keyframes slideout {
+    from {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Vertical margin only */
+    padding: 1em 0;
+    width: 100%;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.menu-item > b {
+    margin-bottom: 0.5em;
+}
+
+.menu-button {
+    font-family: "Silkscreen", cursive;
+    background: var(--button-bg);
+    border: 2px solid var(--color-border);
+    color: white;
+    border-radius: 0.4rem;
+    padding: 0.5em;
+    min-width: 8em;
+    font-size: inherit;
+    justify-content: center;
+    margin-bottom: 0.5em;
+}
+
+.menu-button:last-of-type {
+    margin-bottom: 0;
+}
+
+.menu-button:hover {
+    filter: brightness(130%);
+}
+
+.board-options {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5em;
+    margin: 0.5em 0;
+    width: 90%;
+}
+
+.board-options > div {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+}
+
+.board-options > div > span {
+    margin-bottom: 1em;
+    font-weight: bold;
+}
+
+.num-slider {
+    width: 100%;
+
+    appearance: none;
+    height: 0.5em;
+    background: var(--color-border);
+    border: 2px solid var(--color-border);
+    border-radius: 5em;
+}
+
+.num-slider::-webkit-slider-thumb {
+    appearance: none;
+    height: 1.5em;
+    width: 1em;
+    background: white;
+    border: 2px solid var(--color-border);
+}
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Occupy the whole screen */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    /* Cover the header */
+    top: 0;
+    left: 0;
+    /* Stay on top of all elements */
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+}
+
+.dialog {
+    background-color: white;
+    color: black;
+    border-radius: 0.4rem;
+    padding: 1rem;
+    box-shadow: 0 0 20px 5px rgb(0 0 0 / 20%);
+    z-index: 4;
+    max-width: 75%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Match all descendants of .dialog */
+.dialog * {
+    color: inherit;
+}
+
+/* ---------- Statistics ---------- */
+.statistics-container {
+    display: flex;
+    gap: 1em;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat > span {
+    font-size: 2em;
+}
+
+/* ---------- Registration/Login Form ---------- */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-evenly;
+    gap: 0.5rem;
+    padding: 1rem;
+    width: 20rem;
+}
+
+.form-container > b {
+    font-size: 0.8em;
+}
+
+.input-field {
+    height: 1.5rem;
+}

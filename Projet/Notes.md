@@ -34,6 +34,14 @@ listener 1883
 
 Then I reset the RPI, and the MQTT broker worked correctly!!!
 
+I verified with `sudo netstat -tlnp | grep 1883`
+The result was:
+
+```sh
+tcp        0      0 0.0.0.0:1883            0.0.0.0:*               LISTEN      684/mosquitto
+tcp6       0      0 :::1883                 :::*                    LISTEN      684/mosquitto
+```
+
 I tested this using an app on my phone called MyMQTT
 
 ## HTTP Server
@@ -41,3 +49,26 @@ I tested this using an app on my phone called MyMQTT
 **Board**: Raspberry Pi 3
 **OS**: RPI OS 64-bit
 **Framework**: Flask
+
+Created virtual environment named venv with `python3 -m venv ./venv`
+Then I activated the virtual environment to be able to install packages without breaking the main python installation with `source ./venv/bin/activate`
+Installed flask with `sudo pip3 install flask`
+Installed paho-mqtt with `sudo pip3 install paho-mqtt`
+
+## SQLite3 Database
+
+Installed with `sudo apt install sqlite3`
+
+## SSH key on RPI
+
+I created a SSH key with `ssh-keygen -b 2048 -t rsa` to be able to clone the repository from my github account
+I had some trouble logging in via ssh config, then i noticed I was sharing the public key (.pub) when i needed to share the private key
+
+```sh
+Host rpi
+  User giorgio
+  Hostname raspberrypi.local
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+```
