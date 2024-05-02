@@ -2,8 +2,9 @@ import paho.mqtt.client as mqtt
 from flask import Flask, render_template, request
 import json
 import sqlite3
+import datetime  # for timestamp
 
-DATABASE_PATH = "./sensordata.db"
+DATABASE_PATH = "/databases/ioc_project.db"
 
 app = Flask(__name__)
 
@@ -32,19 +33,37 @@ def on_message(client, userdata, message):
 
         esp32readings_json = json.loads(message.payload)
 
-        # connects to SQLite database. File is named "sensordata.db" without the quotes
+        # connects to SQLite database. File is named "ioc_project.db" without the quotes
         # WARNING: your database file should be in the same directory of the app.py file or have the correct path
-        conn = sqlite3.connect(DATABASE_PATH)
+        conn = sqlite3.connect(
+            DATABASE_PATH, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES
+        )
         c = conn.cursor()
 
+        currentDateTime = datetime.datetime.now(
+            datetime.UTC
+        )  # current date and time at the time of message
+
+        insertQuery = """INSERT INTO IOTSensors 
+            (deviceName, sensor, reading, timestamp) 
+            VALUES((?), (?), (?), (?))"""  # Add ; at the end?
         c.execute(
-            """INSERT INTO prReadings 
-            (luminance, currentdate, currentime, device) 
-            VALUES((?), (?), date('now'), time('now'), (?))""",
-            (esp32readings_json["luminance"], "esp32"),
+            insertQuery,
+            (
+                "ESP32",
+                "photoresistance",
+                esp32readings_json["luminance"],
+                currentDateTime,
+                # currentDateTime.strftime("%Y-%m-%d %H:%M:%S"),
+            ),
         )
 
+        print("ESP32 readings updated")
+
+        # commit the changes,
+        # close the cursor and database connection
         conn.commit()
+        c.close()
         conn.close()
 
 
@@ -66,7 +85,7 @@ def main():
     conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = dict_factory
     c = conn.cursor()
-    c.execute("SELECT * FROM prReadings ORDER BY id DESC LIMIT 20")
+    c.execute("SELECT * FROM IOTSensors ORDER BY id DESC LIMIT 20")
     readings = c.fetchall()
     # print(readings)
 
