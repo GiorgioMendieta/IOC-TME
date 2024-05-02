@@ -28,10 +28,13 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, message):
     if message.topic == "esp32/photoVal":
         print("ESP32 readings update")
+        print(client)
+        print(userdata)
         # print(message.payload.json())
         # print(esp32readings_json['Luminance'])
 
-        esp32readings_json = json.loads(message.payload)
+        # esp32readings_json = json.loads(message.payload)
+        luminance = message.payload
 
         # connects to SQLite database. File is named "ioc_project.db" without the quotes
         # WARNING: your database file should be in the same directory of the app.py file or have the correct path
@@ -52,7 +55,7 @@ def on_message(client, userdata, message):
             (
                 "ESP32",
                 "photoresistance",
-                esp32readings_json["luminance"],
+                luminance,
                 currentDateTime,
                 # currentDateTime.strftime("%Y-%m-%d %H:%M:%S"),
             ),
@@ -69,7 +72,7 @@ def on_message(client, userdata, message):
 
 MQTT_BROKER = "192.168.1.3"
 
-mqttc = mqtt.Client()
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 
