@@ -4,7 +4,7 @@ import json
 import sqlite3
 import datetime  # for timestamp
 
-DATABASE_PATH = "/databases/ioc_project.db"
+DATABASE_PATH = "/databases/databaseProjet/ioc_project.db"
 
 app = Flask(__name__)
 
@@ -17,7 +17,7 @@ def dict_factory(cursor, row):
 
 
 # The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, props=None):
     print("Connected with result code " + str(rc))
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
@@ -27,14 +27,10 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the ESP32
 def on_message(client, userdata, message):
     if message.topic == "esp32/photoVal":
-        print("ESP32 readings update")
-        print(client)
-        print(userdata)
-        # print(message.payload.json())
-        # print(esp32readings_json['Luminance'])
 
         # esp32readings_json = json.loads(message.payload)
-        luminance = message.payload
+        luminance = message.payload.decode('utf-8')
+        print("ESP32 luminance: " + luminance)
 
         # connects to SQLite database. File is named "ioc_project.db" without the quotes
         # WARNING: your database file should be in the same directory of the app.py file or have the correct path
@@ -42,7 +38,6 @@ def on_message(client, userdata, message):
             DATABASE_PATH, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES
         )
         c = conn.cursor()
-
         currentDateTime = datetime.datetime.now(
             datetime.UTC
         )  # current date and time at the time of message
@@ -50,6 +45,7 @@ def on_message(client, userdata, message):
         insertQuery = """INSERT INTO IOTSensors 
             (deviceName, sensor, reading, timestamp) 
             VALUES((?), (?), (?), (?))"""  # Add ; at the end?
+
         c.execute(
             insertQuery,
             (
@@ -57,10 +53,8 @@ def on_message(client, userdata, message):
                 "photoresistance",
                 luminance,
                 currentDateTime,
-                # currentDateTime.strftime("%Y-%m-%d %H:%M:%S"),
-            ),
+            )
         )
-
         print("ESP32 readings updated")
 
         # commit the changes,

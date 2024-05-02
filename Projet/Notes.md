@@ -40,7 +40,7 @@ Then i installed `mosquitto`and `mosquitto-clients` with `apt get`
 I started the service with `systemctl start mosquitto.service`
 Then I verified the hostname with `hostname` and `hostname -I`
 
-I configured the `mosquitto.conf` file by adding the following options:
+I configured the `mosquitto.conf` file located at `/etc/mosquitto` by adding the following options:
 
 ```
 allow_anonymous true
@@ -58,6 +58,14 @@ tcp6       0      0 :::1883                 :::*                    LISTEN      
 ```
 
 I tested this using an app on my phone called MyMQTT
+
+On the raspberry, I ran into a problem using MQTTv5. Apparently on_connect() needed 5 arguments but there were only 4 being given. 
+While researching I stumbled upon this (https://github.com/eclipse/paho.mqtt.python/issues/575)
+The problem was fixed by passing an empty properties *props* parameter
+
+```python
+def on_connect(client, userdata, flags, rc, props=None):
+```
 
 ## HTTP Server
 
@@ -79,7 +87,7 @@ Enabled and started the apache2 service `sudo systemctl enable apache2` and `sud
 Entered the default directory for the server `cd /var/www/html/` and created a `database` directory
 I then downloaded phpLiteAdmin from bitbucket using `sudo wget https://bitbucket.org/phpliteadmin/public/downloads/phpLiteAdmin_v1-9-8-2.zip`, unzipped the file and copied the default configuration file
 
-Default password for the DB is "admin" without quotes, and I specified the DB path `/home/giorgio/Developer/IOC-TME/Projet/Database`
+Default password for the DB is "admin" without quotes, and I specified the DB path `/home/giorgio/Developer/IOC-TME/Projet/Database` on the phpLiteAdmin config file located at `/var/www/html/database/phpliteadmin.config.php`
 
 I then accessed the page using the RPI local IP.
 (Note: The local IP can be known with the following command `hostname -I`), in this case it was **192.168.1.3**
@@ -105,3 +113,7 @@ sqlite> .fullschema
 CREATE TABLE IF NOT EXISTS "IOTSensors" ( ID INTEGER PRIMARY KEY, deviceName TEXT,'sensor' TEXT,'reading' INT ,'timestamp' DATETIME);
 /*No STAT tables available*/
 ```
+
+After running the server using `python app.py` I ran into some trouble regarding the database. I got a problem regarding "attempt to write to a readonly database". After looking on the internet apparently it was a problem regarding the permissions of the database file AND the directory where it was located. 
+
+I then created another directory and changed the permissions and then it worked correctly
