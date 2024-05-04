@@ -78,9 +78,9 @@ mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 
 # Comment the next line disable MQTT for testing purposes
-# if mqttc.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
-#     print("Connection failed")
-# mqttc.loop_start()
+if mqttc.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
+    print("Connection failed")
+mqttc.loop_start()
 
 
 def apology(message, code=400):

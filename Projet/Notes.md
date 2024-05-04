@@ -78,7 +78,9 @@ Installed paho-mqtt with `sudo pip3 install paho-mqtt`
 
 When testing the server on my local machine I had some problems with socket timeouts. I debugged and the problem was the MQTT connection since I had not started the mosquitto service on my Macbook
 
-I then used Bootstrap 5.3 to use its embedded CSS styles to simplify the webpage design. I also implemented Google charts (<https://developers.google.com/chart/interactive/docs/gallery/linechart>) to beetter visualize the data.
+I then used Bootstrap 5.3 to use its embedded CSS styles to simplify the webpage design. I also implemented Google charts (<https://developers.google.com/chart/interactive/docs/gallery/linechart>) to better visualize the data.
+
+Finally I added some buttons and used POST HTTP requests to turn On/Off the LED of the ESP32
 
 ## SQLite3 Database
 
