@@ -59,8 +59,8 @@ tcp6       0      0 :::1883                 :::*                    LISTEN      
 
 I tested this using an app on my phone called MyMQTT
 
-On the raspberry, I ran into a problem using MQTTv5. Apparently on_connect() needed 5 arguments but there were only 4 being given. 
-While researching I stumbled upon this (https://github.com/eclipse/paho.mqtt.python/issues/575)
+On the raspberry, I ran into a problem using MQTTv5. Apparently on_connect() needed 5 arguments but there were only 4 being given.
+While researching I stumbled upon this (<https://github.com/eclipse/paho.mqtt.python/issues/575>)
 The problem was fixed by passing an empty properties *props* parameter
 
 ```python
@@ -77,6 +77,10 @@ Created virtual environment named venv with `python3 -m venv ./venv`
 Then I activated the virtual environment to be able to install packages without breaking the main python installation with `source ./venv/bin/activate`
 Installed flask with `sudo pip3 install flask`
 Installed paho-mqtt with `sudo pip3 install paho-mqtt`
+
+When testing the server on my local machine I had some problems with socket timeouts. I debugged and the problem was the MQTT connection since I had not started the mosquitto service on my Macbook
+
+I then used Bootstrap 5.3 to use its embedded CSS styles to simplify the webpage design.
 
 ## SQLite3 Database
 
@@ -114,6 +118,6 @@ CREATE TABLE IF NOT EXISTS "IOTSensors" ( ID INTEGER PRIMARY KEY, deviceName TEX
 /*No STAT tables available*/
 ```
 
-After running the server using `python app.py` I ran into some trouble regarding the database. I got a problem regarding "attempt to write to a readonly database". After looking on the internet apparently it was a problem regarding the permissions of the database file AND the directory where it was located. 
+After running the server using `python app.py` I ran into some trouble regarding the database. I got a problem regarding "attempt to write to a readonly database". After looking on the internet apparently it was a problem regarding the permissions of the database file AND the directory where it was located.
 
 I then created another directory and changed the permissions and then it worked correctly

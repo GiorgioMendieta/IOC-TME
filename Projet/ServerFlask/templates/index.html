@@ -1,17 +1,33 @@
-{% extends "layout.html" %} {% block title %} Word Guessr {% endblock %} {%
-block javascript %}
-<script src="/static/app.js" defer></script>
-<!-- Pass in variables from Flask server to JS -->
-<script type="text/javascript">
-    // Variables
-</script>
-{% endblock %} 
-{% block headerleft %}
-<button class="menu-button menu-header" id="sidebar-button" data-state="closed">
-    Menu
-</button>
-{% endblock %} 
+{% extends "layout.html" %}
+
+{% block title %}
+Main page
+{% endblock %}
 
 {% block main %}
+<h1>Dashboard</h1>
 
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="text-end">ID</th>
+            <th class="text-start">Device</th>
+            <th class="text-start">Sensor</th>
+            <th class="text-end">Value</th>
+            <th class="text-end">Timestamp</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for entry in readings %}
+        <tr>
+            <td class="text-end">{{ entry.ID }}</td>
+            <td class="text-start">{{ entry.deviceName }}</td>
+            <td class="text-start">{{ entry.sensor }}</td>
+            <td class="text-end">{{ entry.reading }}</td>
+            <td class="text-end">{{ entry.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

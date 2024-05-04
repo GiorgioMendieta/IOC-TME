@@ -4,9 +4,13 @@ import json
 import sqlite3
 import datetime  # for timestamp
 
-DATABASE_PATH = "/databases/databaseProjet/ioc_project.db"
-
 app = Flask(__name__)
+
+# DATABASE_PATH = "/databases/databaseProjet/ioc_project.db"
+DATABASE_PATH = "./ioc_project.db"
+
+# Ensure templates are auto-reloaded
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
 def dict_factory(cursor, row):
@@ -29,7 +33,7 @@ def on_message(client, userdata, message):
     if message.topic == "esp32/photoVal":
 
         # esp32readings_json = json.loads(message.payload)
-        luminance = message.payload.decode('utf-8')
+        luminance = message.payload.decode("utf-8")
         print("ESP32 luminance: " + luminance)
 
         # connects to SQLite database. File is named "ioc_project.db" without the quotes
@@ -53,7 +57,7 @@ def on_message(client, userdata, message):
                 "photoresistance",
                 luminance,
                 currentDateTime,
-            )
+            ),
         )
         print("ESP32 readings updated")
 
@@ -70,9 +74,10 @@ mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 
-if mqttc.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
-    print("Connection failed")
-mqttc.loop_start()
+# Comment the next line disable MQTT for testing purposes
+# if mqttc.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
+#     print("Connection failed")
+# mqttc.loop_start()
 
 
 @app.route("/", methods=["GET", " POST"])
@@ -89,7 +94,7 @@ def main():
     # POST request because variables will alter the state on the backend
     # if request.method == "POST":
 
-    return render_template("main.html", readings=readings)
+    return render_template("index.html", readings=readings)
 
 
 if __name__ == "__main__":

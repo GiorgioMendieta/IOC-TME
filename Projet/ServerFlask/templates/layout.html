@@ -1,85 +1,56 @@
 <!DOCTYPE html>
+
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{% block title %}{% endblock %}</title>
-        <link href="/static/favicon.ico" rel="icon" />
-        <link rel="stylesheet" href="/static/style.css" />
 
-        <!-- Google fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap"
-            rel="stylesheet"
-        />
+<head>
 
-        {% block javascript %} {% endblock %}
-    </head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
 
-    <!-- Default to light theme -->
+    <!-- http://getbootstrap.com/docs/5.1/ -->
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
+    <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
 
-    <body id="body" theme="light">
-        <header class="header-container">
-            {% block headerleft %} {% endblock %}
+    <!-- https://favicon.io/emoji-favicons/money-bag/ -->
+    <link href="/static/favicon.ico" rel="icon">
 
-            <div class="title-container">
-                <a href="http://127.0.0.1:5000/">
-                    <h1>Word Guessr</h1>
-                </a>
-            </div>
+    <link href="/static/styles.css" rel="stylesheet">
 
-            {% block headerright %} {% endblock %}
-        </header>
+    <title>IOC Projet: {% block title %}{% endblock %}</title>
 
-        <div class="game-container">
-            {% block main %} {% endblock %}
+</head>
 
-            <div class="alert-container" id="alert-container">
-                <!-- Alerts go here (Javascript)-->
-                <!-- Flash messages with Flask go here (if any) -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %} {% for category, message in messages %}
-                <div class="flash {{category}}">{{ message }}</div>
-                {% endfor %} {% endif %} {% endwith %}
-            </div>
-
-            <div
-                class="modal-overlay"
-                id="modal-container"
-                style="display: none"
-            >
-                <div class="dialog" id="dialog">
-                    <b>STATISTICS</b>
-                    <div class="statistics-container" id="statistics-container">
-                        <div class="stat">
-                            <span id="stat-played">X</span>
-                            Played
-                        </div>
-                        <div class="stat">
-                            <span id="stat-win-perc">X</span>
-                            Win %
-                        </div>
-                        <div class="stat">
-                            <span id="stat-current-streak">X</span>
-                            Current<br />Streak
-                        </div>
-                        <div class="stat">
-                            <span id="stat-max-streak">X</span>
-                            Max<br />Streak
-                        </div>
-                    </div>
-
-                    <br />
-
-                    <b>DEFINITION</b>
-                    <div id="definition-container">
-                        Guess the word to show the definition.
-                    </div>
-                </div>
-            </div>
+<body>
+    <!-- Navbar -->
+    <nav class="bg-dark border navbar navbar-expand-md navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><span>IOC Projet</span></a>
+            <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+                data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
-    </body>
+    </nav>
+
+    <!-- Flash message (if available) -->
+    {% if get_flashed_messages() %}
+    <header>
+        <div class="alert alert-primary mb-0 text-center" role="alert">
+            {{ get_flashed_messages() | join(" ") }}
+        </div>
+    </header>
+    {% endif %}
+
+    <main class="container-fluid py-5 text-center">
+        {% block main %}{% endblock %}
+    </main>
+
+    <footer class="mb-5 small text-center text-muted">
+        IOC Projet par Jorge Mendieta et Lou Thirion
+    </footer>
+
+</body>
+
 </html>
