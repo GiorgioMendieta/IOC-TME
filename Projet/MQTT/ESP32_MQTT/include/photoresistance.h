@@ -24,12 +24,12 @@ void setup_photo(struct t_photoresistance *ctx, int timer, unsigned long period,
 
 void loop_photo(struct t_photoresistance *ctx, t_mailbox *mb)
 {
+    ctx->val = map(analogRead(ctx->pin), 4095, 0, 0, 100); // Map the value to a 0-100 range
+    mb->val = ctx->val;
+
     // Wait for the period to elapse
     if (!waitFor(ctx->timer, ctx->period))
         return;
-
-    ctx->val = map(analogRead(ctx->pin), 4095, 0, 0, 100); // Map the value to a 0-100 range
-    mb->val = ctx->val;
 
     snprintf(msg, MSG_BUFFER_SIZE, "%ld", ctx->val);
     Serial.print("Published to [esp32/photoVal]: ");

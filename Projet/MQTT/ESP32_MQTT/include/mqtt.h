@@ -28,28 +28,24 @@ void callback(char *topic, byte *payload, unsigned int length)
 {
     Serial.print("Message arrived [");
     Serial.print(topic);
-    Serial.print("] ");
+    Serial.print("]: ");
     String messageTemp;
 
     for (int i = 0; i < length; i++)
     {
-        Serial.print((char)payload[i]);
         messageTemp += (char)payload[i];
     }
-    Serial.println();
+    Serial.println(messageTemp);
 
     // Do something according to the message and topic
-    // Check if a message is received on the topic "rpi/broadcast"
     if (String(topic) == "rpi/broadcast")
     {
-        Serial.println("Broadcast message received");
-        // Do something with the message
-        if (messageTemp == "ON")
+        if (messageTemp == "ledOn")
         {
             Serial.println("Turning ON LED");
             digitalWrite(LED_BUILTIN, HIGH);
         }
-        else if (messageTemp == "OFF")
+        else if (messageTemp == "ledOff")
         {
             Serial.println("Turning OFF LED");
             digitalWrite(LED_BUILTIN, LOW);
@@ -76,13 +72,10 @@ boolean connect_mqtt()
     if (client.connect(clientId))
     {
         Serial.println("Connected to MQTT server!");
-
         if (!client.subscribe("rpi/broadcast"))
         {
             Serial.println("Failed to subscribe to topic");
         }
-
-        // TODO: Publish a message to the topic "esp32/broadcast" ?
     }
     else
     {

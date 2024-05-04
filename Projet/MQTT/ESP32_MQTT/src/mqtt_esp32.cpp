@@ -32,7 +32,7 @@ void setup()
   // Initialize push button
   setup_pushbutton(PB_PIN);
   // Initialize tasks
-  setup_photo(&Photoresistance, TIMER0, 5000000, PHOTOR_PIN);
+  setup_photo(&Photoresistance, TIMER0, 30000000, PHOTOR_PIN);
   setup_screen(&Screen, TIMER1, 1000000); // Refresh display every 1 second
   // Initialize WiFi and MQTT
   setup_wifi(WIFI_SSID, WIFI_PASSWORD);
