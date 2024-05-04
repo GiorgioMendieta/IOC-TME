@@ -7,6 +7,46 @@ Main page
 {% block main %}
 <h1>Dashboard</h1>
 
+<!-- Google chart -->
+<script type="text/javascript">
+
+    // Load the Visualization API and the Material Line Chart package.
+    google.charts.load('current', { 'packages': ['line'] });
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawChart);
+
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+
+        // Create the data table.
+        var data = new google.visualization.arrayToDataTable([
+            ['ID', 'Value'],
+            {% for entry in readings %}
+            ['{{ entry.ID
+             }}', {{ entry.reading }}],
+            {% endfor %}
+        ]);
+
+        // Set chart options
+        var options = {
+            'title': 'Sensor Data',
+            'curveType': 'function',
+            'legend': { position: 'bottom' }
+        };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.charts.Line(document.getElementById('linechart_material'));
+        chart.draw(data, google.charts.Line.convertOptions(options));
+    }
+</script>
+
+<!-- Container for the line chart -->
+<div id="linechart_material" style="width: 900px; height: 500px"></div>
+
+<!-- Table with the readings -->
 <table class="table table-striped">
     <thead>
         <tr>
@@ -30,4 +70,15 @@ Main page
         {% endfor %}
     </tbody>
 </table>
+
+<!-- LED button -->
+<div class="d-flex justify-content-center">
+    <form action="/ledOn" method="post">
+        <button class="btn btn-primary" name="ledOn" type="submit">LED On</button>
+    </form>
+    <form action="/ledOff" method="post">
+        <button class="btn btn-primary" name="ledOn" type="submit">LED Off</button>
+    </form>
+</div>
+    
 {% endblock %}

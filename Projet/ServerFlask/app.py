@@ -1,16 +1,19 @@
-import paho.mqtt.client as mqtt
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash, redirect, url_for
 import json
-import sqlite3
+import paho.mqtt.client as mqtt  # for MQTT communication
+import sqlite3  # for SQLite database
 import datetime  # for timestamp
 
 app = Flask(__name__)
 
 # DATABASE_PATH = "/databases/databaseProjet/ioc_project.db"
-DATABASE_PATH = "./ioc_project.db"
+DATABASE_PATH = "./ioc_project.db"  # Pathname for testing in local machine
+SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+# Set secret key to flash messages
+app.config["SECRET_KEY"] = SECRET_KEY
 
 
 def dict_factory(cursor, row):
@@ -80,6 +83,31 @@ mqttc.on_message = on_message
 # mqttc.loop_start()
 
 
+def apology(message, code=400):
+    """Render message as an apology to user."""
+
+    def escape(s):
+        """
+        Escape special characters.
+
+        https://github.com/jacebrowning/memegen#special-characters
+        """
+        for old, new in [
+            ("-", "--"),
+            (" ", "-"),
+            ("_", "__"),
+            ("?", "~q"),
+            ("%", "~p"),
+            ("#", "~h"),
+            ("/", "~s"),
+            ('"', "''"),
+        ]:
+            s = s.replace(old, new)
+        return s
+
+    return render_template("apology.html", top=code, bottom=escape(message)), code
+
+
 @app.route("/", methods=["GET", " POST"])
 def main():
     # connects to SQLite database. File is named "sensordata.db" without the quotes
@@ -91,10 +119,43 @@ def main():
     readings = c.fetchall()
     # print(readings)
 
-    # POST request because variables will alter the state on the backend
-    # if request.method == "POST":
+    # LedOn or LedOff
+    if request.method == "POST":
+        payload = request.form.get("payload")
+        # print("Payload: " + payload)
+        mqttc.publish("rpi/broadcast", payload)
+        flash("Payload sent!")
+        # return redirect("/")
+        # return redirect(url_for("main"))
 
     return render_template("index.html", readings=readings)
+    # return apology("Not found", 400)
+
+
+@app.route("/ledOn", methods=["GET", "POST"])
+def ledOn():
+    if request.method == "POST":
+        payload = request.form.get("ledOn")
+        # print("Payload: " + payload)
+        mqttc.publish("rpi/broadcast", "ledOn")
+        flash("Led On!")
+        # return redirect("/")
+        return redirect("/")
+
+    return render_template("/")
+
+
+@app.route("/ledOff", methods=["GET", "POST"])
+def ledOff():
+    if request.method == "POST":
+        payload = request.form.get("ledOff")
+        # print("Payload: " + payload)
+        mqttc.publish("rpi/broadcast", "ledOff")
+        flash("Led Off!")
+        # return redirect("/")
+        return redirect("/")
+
+    return render_template("/")
 
 
 if __name__ == "__main__":

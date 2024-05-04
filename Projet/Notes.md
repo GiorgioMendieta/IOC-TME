@@ -14,8 +14,6 @@ Finally I settled for the multi tasking approach and publish a message using the
 Then I implemented the OLED screen to show the SSID, IP address and Photoresistance value
 I refactored the code by making it modular using header files
 
-I have some difficulties with the MQTT broker on my Macbook since I still haven't flashed the RPI
-
 ## SSH key on RPI
 
 I flashed the RPI using the RPI imager
@@ -80,7 +78,7 @@ Installed paho-mqtt with `sudo pip3 install paho-mqtt`
 
 When testing the server on my local machine I had some problems with socket timeouts. I debugged and the problem was the MQTT connection since I had not started the mosquitto service on my Macbook
 
-I then used Bootstrap 5.3 to use its embedded CSS styles to simplify the webpage design.
+I then used Bootstrap 5.3 to use its embedded CSS styles to simplify the webpage design. I also implemented Google charts (<https://developers.google.com/chart/interactive/docs/gallery/linechart>) to beetter visualize the data.
 
 ## SQLite3 Database
 
