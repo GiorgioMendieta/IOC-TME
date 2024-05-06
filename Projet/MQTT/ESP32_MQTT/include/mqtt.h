@@ -50,6 +50,7 @@ void callback(char *topic, byte *payload, unsigned int length)
             Serial.println("Turning OFF LED");
             digitalWrite(LED_BUILTIN, LOW);
         }
+        // TODO: Add case for toggling LED state
     }
 }
 
@@ -76,6 +77,8 @@ boolean connect_mqtt()
         {
             Serial.println("Failed to subscribe to topic");
         }
+
+        // TODO: Publish a message to the topic "esp32/broadcast" ?
     }
     else
     {
@@ -102,7 +105,6 @@ void loop_mqtt(struct t_mqtt *ctx, t_mailbox *mb)
         else
         {
             // First check WiFi connection
-            // TODO: Add mailbox to check if WiFi is connected to speed up the process
             if (WiFi.status() != WL_CONNECTED)
             {
                 // if not connected, then first connect to wifi

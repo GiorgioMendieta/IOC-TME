@@ -82,6 +82,8 @@ I then used Bootstrap 5.3 to use its embedded CSS styles to simplify the webpage
 
 Finally I added some buttons and used POST HTTP requests to turn On/Off the LED of the ESP32
 
+The website address is <http://192.168.1.3:8181>
+
 ## SQLite3 Database
 
 Installed with `sudo apt install sqlite3`
@@ -121,3 +123,9 @@ CREATE TABLE IF NOT EXISTS "IOTSensors" ( ID INTEGER PRIMARY KEY, deviceName TEX
 After running the server using `python app.py` I ran into some trouble regarding the database. I got a problem regarding "attempt to write to a readonly database". After looking on the internet apparently it was a problem regarding the permissions of the database file AND the directory where it was located.
 
 I then created another directory and changed the permissions and then it worked correctly
+
+## Points à améliorer
+
+Implémenter WSGI afin de deployer le serveur Flask (<https://flask.palletsprojects.com/en/3.0.x/tutorial/deploy/>) (<https://flask.palletsprojects.com/en/3.0.x/deploying/>)
+Passer à Node-RED pour simplifier le dévelopemment du dashboard
+Utiliser la librairie MultiWiFi afin de pouvoir se connecter à plusieurs SSIDs parmi une liste quand un SSID n'est pas disponible

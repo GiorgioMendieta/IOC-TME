@@ -21,12 +21,11 @@ Main page
     // draws it.
     function drawChart() {
 
-        // Create the data table.
+        // Create the data table and populate it with the readings from the database
         var data = new google.visualization.arrayToDataTable([
             ['ID', 'Value'],
             {% for entry in readings %}
-            ['{{ entry.ID
-             }}', {{ entry.reading }}],
+            ['{{ entry.ID }}', {{ entry.reading }}],
             {% endfor %}
         ]);
 
@@ -37,7 +36,7 @@ Main page
             'legend': { position: 'bottom' }
         };
 
-        // Instantiate and draw our chart, passing in some options.
+        // Instantiate and draw the chart, passing in some options.
         var chart = new google.charts.Line(document.getElementById('linechart_material'));
         chart.draw(data, google.charts.Line.convertOptions(options));
     }
@@ -46,7 +45,7 @@ Main page
 <!-- Container for the line chart -->
 <div id="linechart_material" style="width: 900px; height: 500px"></div>
 
-<!-- Table with the readings -->
+<!-- Table with the sensor readings -->
 <table class="table table-striped">
     <thead>
         <tr>
@@ -72,6 +71,7 @@ Main page
 </table>
 
 <!-- LED button -->
+<!-- TODO: Add button to toggle LED, and make ESP32 publish a message to the RPI to update the value on the website -->
 <div class="d-flex justify-content-center">
     <form action="/ledOn" method="post">
         <button class="btn btn-primary" name="ledOn" type="submit">LED On</button>
