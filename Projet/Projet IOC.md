@@ -13,29 +13,31 @@ Intégrants de l'équipe :
 
 La plateforme matérielle se compose de :
 
-- 1 ou 2 modules **ESP32** (TTGO-Lora-OLED V1) sur lesquels vous avez comme capteur une photorésistance et 2 boutons-poussoirs (1 sur le module, 1 sur la carte), et comme "actionneurs" un écran, une led et, pour certains, un buzzer.
-- Une carte **Raspberry Pi 3**.
+- 1 à 2 modules **ESP32** (TTGO-Lora-OLED V1) sur lesquels il y a des capteurs, une photorésistance et 2 boutons-poussoirs (1 sur le module, 1 sur la carte), et des "actionneurs" un écran, une led et, pour certains, un buzzer.
+- Une carte **Raspberry Pi 3** sur laquelle est installé un système Linux.
 
 ### La Raspberry Pi 3
 
-- 1 **Serveur HTTP** pour répondre au client navigateur WEB et récupérer les valeurs des capteurs ou envoyer des commandes sur les actionneurs.
-  - Vous pouvez utiliser le serveur HTTP en Python déjà vu, ou un autre serveur tel qu'Appache avec un serveur en PHP ou un framework tel que Django.
-- 1 **Application Gateway** qui fait le lien entre le serveur HTTP et les capteurs. Cette application est composée de:
+Les logiciels utilisés sur la Raspberry pour notre projet sont les suivants :
+
+- Un **Serveur HTTP** pour répondre au client navigateur WEB et récupérer les valeurs des capteurs ou envoyer des commandes pour les actionneurs.
+- Une **Application Gateway** qui fait le lien entre le serveur HTTP et les capteurs. Cette application est composée de:
   - Un **client MQTT** qui récupère des data (par subscribe) ou émet des commandes (par publish) aux clients MQTT présents sur les ESP32.
   - Un **broker MQTT** qui assure le "routage" des messages entre les clients
   - Une "**base de données**" qui enregistre les valeurs envoyées par les ESP32.
-        Cette base de données peut être un simple fichier contenant seulement  la dernière valeur envoyée par une ESP32 (donc il peut y avoir autant de fichiers que d'ESP32) ou être une vraie base de données telle que sqlite-3. Ce choix dépend du temps que vous voulez consacrer et de vos compétences initiales dans ce domaine.
 
 ### Les ESP32
 
-- Un **client MQTT** qui "*publish*" et si possible "*subscribe*" des messages destinés ou provenant du client MQTT s'exécutant sur la raspberrypi 3.
-- Des taches qui interfacent les capteurs et les actionneurs
+Pour l'ESP32, le logiciel comporte 2 parties principales :
+
+- Un **client MQTT** qui "*publish*" ou "*subscribe*" des messages destinés ou provenant du client MQTT s'exécutant sur la Raspberry Pi 3.
+- Une partie qui comporte plusieurs tâches permettant d'intéragir avec les capteurs et actionneurs.
 
 ## Étapes du projet
 
-Nous allons commencer d'abord avec une **preuve de concept** afin de vérifier un système minimal qui s'exécute correctement, et après l'implémentation sur le matériel (RPI3, ESP32).
+La première partie du projet consiste à créer une **preuve de concept** afin de vérifier un système minimal qui s'exécute correctement. Puis, dans un deuxième temps, l'objectif sera d'implémenter la preuve de concept sur le matériel (RPI3, ESP32).
 
-Pour la **version définitif**, nous allons commencer avec les étapes suivantes :
+Pour la **version définitive**, voici les différentes étapes du projet :
 
 - Implémentation MQTT sur l'ESP32 et un broker MQTT publique
 - Flash de Raspberry Pi OS (64-bit)
@@ -142,6 +144,7 @@ ESSID:"Giorgio Mendieta"
 ```
 
 **Ça marche pas !!!**
+Malheureusement nous n'avons pas réussi à connecter la Raspberry à internet avec les commandes bash.
 
 Pour le débloquage des périphériques avec rfkill :
 <https://debian-facile.org/doc:reseau:rfkill>
@@ -163,7 +166,7 @@ Finalement la solution la plus simple est d'accéder à l'interface graphique (G
 
 ### Broker MQTT avec Mosquitto
 
-Il faut avoir installé `mosquitto`.
+Pour héberger un broker MQTT, il faut installer `mosquitto`.
 
 Pour lancer le service du broker :
 
@@ -196,11 +199,11 @@ listener 1883 0.0.0.0
 allow_anonymous true
 ```
 
-L'adresse `0.0.0.0` correpond à un masque qui va autorisé toutes les adresses IP à se connecter au broker, on pourrait mettre seulement l'adresse IP de la machine qui héberge le broker
+L'adresse `0.0.0.0` correpond à un masque qui va autorisé toutes les adresses IP à se connecter au broker, on pourrait mettre seulement l'adresse IP de la machine qui héberge le broker.
 
 ### Subscriber Mosquitto
 
-Pour le subscriber et le publisher il faut avoir installé `mosquitto-clients`.
+Pour le subscriber et le publisher il faut installer `mosquitto-clients`.
 
 Pour lancer un subscriber qui va attendre une donnée:
 
@@ -223,6 +226,8 @@ mosquitto_pub -h 192.168.1.3 -p 1883 -t "TopicSub" -m "Message à Publier"
 Pour utiliser le protocole MQTT avec Python il faut d'abord installer la librairie [Paho MQTT](https://pypi.org/project/paho-mqtt/) avec la commande `pip install paho-mqtt`, de préference sur un environement virtuel (venv).
 
 ### Publisher et Subscriber Paho
+
+Voici un code python permettant de se connecter à un broker et de publier un message
 
 ```python=
 import paho.mqtt.client as mqtt
@@ -248,7 +253,6 @@ client.publish("inTopic", "Hello World") # Publication d'un message
 ## MQTT sur l'ESP32
 
 Pour connecter l'ESP32 au server MQTT nous utilisons la librairie **PubSubClient.h** que l'on peut trouver facilement parmi les librairies téléchargeables dans l'éditeur Arduino.
-`
 
 ```c=
 #include <WiFi.h>
@@ -351,9 +355,9 @@ Exemple de connexion WiFi MQTT sur l'ESP32 :
 Documentation pour l'API PubSubClient pour MQTT sur Arduino :
 <https://pubsubclient.knolleary.net/api#loop>
 
-## Remarques de la preuve de concept
+**Remarques sur la preuve de concept** :
 
-Les premières connexions MQTT on été réalisé avec l'OS de Émile car il avait l'interface graphique déjà installé avec son OS et pas nous. Donc soit on arrive à installer un gestionnaire de fenêtre soit on reflash notre carte SD pour recommencer sur de meilleurs bases avec une interface graphique.
+Les premières connexions MQTT on été réalisé avec l'OS de Émile car il avait l'interface graphique déjà installé avec son OS et pas nous. Donc soit on arrive à installer un gestionnaire de fenêtre soit on reflash notre carte SD pour recommencer sur de meilleurs bases avec une interface graphique
 
 ---
 
@@ -409,7 +413,7 @@ J'ai finalement implémenté l'écran OLED pour afficher le SSID, l'adresse IP e
 
 ## Configuration de la Raspberry Pi 3
 
-D'abord, nous avons utilisé une carte SD afin de flasher le Raspberry Pi OS (64-bit) avec l'outil [Raspberry Pi Imager](https://www.raspberrypi.com/software/). Une fois flashé l'image et réglé le WiFi, nous avons configuré la connexion par SSH.
+D'abord, nous avons utilisé une carte SD afin de flasher le Raspberry Pi OS (64-bit) avec l'outil [Raspberry Pi Imager](https://www.raspberrypi.com/software/). Une fois l'image flashée et le WiFi réglé, nous avons configuré la connexion par SSH.
 
 J'ai créé une clé SSH avec `ssh-keygen -b 2048 -t rsa` pour pouvoir cloner le repo depuis mon compte GitHub afin de travailler plus facilement.
 J'ai eu quelques difficultés à me connecter via la configuration ssh, puis j'ai remarqué que je partageais la clé publique (.pub) alors que j'avais besoin de partager la clé privée.
@@ -457,7 +461,7 @@ J'ai décidé d'utiliser **phpliteadmin** pour faciliter la gestion de la base d
 
 Dépendances `php-mbstring`, `apache2`, `php`, `libapache2-mod-php`
 Activation et démarrage du service apache2 `sudo systemctl enable apache2` et `sudo systemctl start apache2`
-Entré dans le répertoire par défaut du serveur `cd /var/www/html/` et créé un répertoire `database`.
+Entrer dans le répertoire par défaut du serveur `cd /var/www/html/` et création d'un répertoire `database`.
 J'ai ensuite téléchargé phpLiteAdmin depuis bitbucket en utilisant `sudo wget https://bitbucket.org/phpliteadmin/public/downloads/phpLiteAdmin_v1-9-8-2.zip`, décompressé le fichier et copié le fichier de configuration par défaut.
 
 Le mot de passe par défaut pour la base de données est "admin" sans guillemets, et j'ai spécifié le chemin de la base de données `/home/giorgio/Developer/IOC-TME/Projet/Database` dans le fichier de configuration de phpLiteAdmin situé à `/var/www/html/database/phpliteadmin.config.php`
@@ -490,12 +494,12 @@ CREATE TABLE IF NOT EXISTS "IOTSensors" ( ID INTEGER PRIMARY KEY, deviceName TEX
 
 ## Serveur HTTP avec Flask en Python
 
-Il est toujours une bonne idée de créer d'un environnement virtuel, nommé venv avec la commande `python3 -m venv ./venv`.
+Pour utiliser des librairies externes en python, c'est généralement préférable de créer un environnement virtuel, nommé venv avec la commande `python3 -m venv ./venv`.
 J'ai ensuite activé l'environnement virtuel pour pouvoir installer des paquets sans casser l'installation principale de python avec `source ./venv/bin/activate`
 
 Puis j'ai installé le framework **Flask** afin de créer une application web avec Python en utilisant la commande `sudo pip3 install flask`. J'ai également installé le client MQTT **paho-mqtt** avec `sudo pip3 install paho-mqtt`.
 
-Une grande avantage de Flask est qu'on peut utiliser des templates pour les pages HTML, en créant un "look" plus uniforme. Une autre avantage est qu'on peut passer des variables depuis le serveur afin de créer une page web dynamique. Cela est très utile pour obtenir des données depuis la BD SQLite3.
+Un grand avantage de Flask est que l'on peut utiliser des templates pour les pages HTML, en créant un "look" plus uniforme. Une autre avantage est qu'on peut passer des variables depuis le serveur afin de créer une page web dynamique. Cela est très utile pour obtenir des données depuis la BD SQLite3.
 
 La structure du serveur est la suivante :
 
@@ -523,7 +527,7 @@ ServerFlask on  main ?1
 5 directories, 12 files
 ```
 
-Example d'une table populée dynamiquement avec la BD :
+Example d'une table remplie dynamiquement avec la BD :
 
 ```html
 <tbody>
@@ -543,7 +547,7 @@ En testant le serveur sur ma machine locale, j'ai eu quelques problèmes avec de
 
 ### Format HTML et CSS
 
-J'ai ensuite utilisé [**Bootstrap 5.3**](https://getbootstrap.com) pour utiliser ses styles CSS intégrés afin de simplifier la conception de la page web.
+J'ai ensuite utilisé [**Bootstrap 5.3**](https://getbootstrap.com) pour utiliser des styles CSS intégrés afin de simplifier la conception de la page web.
 
 ```html
 <!-- http://getbootstrap.com/docs/5.1/ -->
@@ -554,6 +558,8 @@ J'ai ensuite utilisé [**Bootstrap 5.3**](https://getbootstrap.com) pour utilise
 ```
 
 J'ai également implémenté Google charts (<https://developers.google.com/chart/interactive/docs/gallery/linechart>) pour mieux visualiser les données d'après les suggestions du professeur sur le cours d'IOC.
+
+En lisant la documentation en ligne, nous avons remarqué qu'il existait une version nouvelle, donc on a changé quelques lignes pour utiliser cette nouvelle version.
 
 ```html
 <!-- Google chart -->
@@ -597,7 +603,7 @@ J'ai également implémenté Google charts (<https://developers.google.com/chart
 
 ### Requêtes HTTP
 
-La page principale montre une graphique afin de visualiser les données stockées dans la BD, ainsi qu'une table avec ces données.
+La page principale comporte un graphique montrant les données stockées dans la BD, ainsi qu'une table avec ces données.
 
 ```python
 @app.route("/", methods=["GET", " POST"])
@@ -652,7 +658,7 @@ L'adresse du site web est <http://192.168.1.3:8181>
 
 **Problèmes rencontrés**
 
-Après avoir lancé le serveur en utilisant `python app.py`, j'ai rencontré quelques problèmes avec la base de données. J'ai eu un problème concernant "attempt to write to a readonly database" (tentative d'écriture dans une base de données en lecture seule). Après avoir cherché sur internet, il s'agissait apparemment d'un problème concernant les permissions du fichier de la base de données ET du répertoire dans lequel il se trouvait. La raison était que SQLite3 crée des fichiers temporelles lors de la manipulation de la base de données, et si le répertoire qui contient la BD n'a pas les permissions correctes, cela marche pas. J'ai donc changé les permissions et cela a fonctionné correctement.
+Après avoir lancé le serveur en utilisant `python app.py`, j'ai rencontré quelques problèmes avec la base de données. J'ai eu un problème concernant "attempt to write to a readonly database" (tentative d'écriture dans une base de données en lecture seule). Après avoir cherché sur internet, il s'agissait apparemment d'un problème concernant les permissions du fichier de la base de données ET du répertoire dans lequel il se trouvait. La raison était que SQLite3 crée des fichiers temporaires lors de la manipulation de la base de données, et si le répertoire qui contient la BD n'a pas les permissions correctes, cela ne marche pas. J'ai donc changé les permissions et cela a fonctionné correctement.
 
 ![alt text](<img/Screenshot 2024-05-16 at 0.09.53.jpg>)
 
