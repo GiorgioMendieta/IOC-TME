@@ -2,12 +2,12 @@
 
 Intégrants de l'équipe :
 
-- Lou THIRION : 28614980
-- Jorge MENDIETA : 21304469
+- **Lou THIRION** : 28614980
+- **Jorge MENDIETA** : 21304469
 
 ## Présentation
 
-![schema_projet](https://hackmd.io/_uploads/ryvHun5CT.png)
+![schema_projet](img/projet.png)
 
 ## Plateforme matérielle
 
@@ -486,6 +486,8 @@ CREATE TABLE IF NOT EXISTS "IOTSensors" ( ID INTEGER PRIMARY KEY, deviceName TEX
 /*Aucune table STAT disponible*/
 ```
 
+![alt text](<img/Screenshot 2024-05-16 at 0.09.03.jpg>)
+
 ## Serveur HTTP avec Flask en Python
 
 Il est toujours une bonne idée de créer d'un environnement virtuel, nommé venv avec la commande `python3 -m venv ./venv`.
@@ -591,6 +593,8 @@ J'ai également implémenté Google charts (<https://developers.google.com/chart
 <div id="linechart_material" style="width: 900px; height: 500px"></div>
 ```
 
+![alt text](img/image.png)
+
 ### Requêtes HTTP
 
 La page principale montre une graphique afin de visualiser les données stockées dans la BD, ainsi qu'une table avec ces données.
@@ -649,6 +653,8 @@ L'adresse du site web est <http://192.168.1.3:8181>
 **Problèmes rencontrés**
 
 Après avoir lancé le serveur en utilisant `python app.py`, j'ai rencontré quelques problèmes avec la base de données. J'ai eu un problème concernant "attempt to write to a readonly database" (tentative d'écriture dans une base de données en lecture seule). Après avoir cherché sur internet, il s'agissait apparemment d'un problème concernant les permissions du fichier de la base de données ET du répertoire dans lequel il se trouvait. La raison était que SQLite3 crée des fichiers temporelles lors de la manipulation de la base de données, et si le répertoire qui contient la BD n'a pas les permissions correctes, cela marche pas. J'ai donc changé les permissions et cela a fonctionné correctement.
+
+![alt text](<img/Screenshot 2024-05-16 at 0.09.53.jpg>)
 
 ## Points à améliorer
 

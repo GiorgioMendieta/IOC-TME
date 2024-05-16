@@ -75,9 +75,9 @@ mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 
 # Comment the next lines to disable MQTT for testing purposes on local machine
-if mqttc.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
-    print("Connection failed")
-mqttc.loop_start()
+# if mqttc.connect(MQTT_BROKER, port=1883, keepalive=60) != 0:
+#     print("Connection failed")
+# mqttc.loop_start()
 
 
 # Function to flash a message to the user
